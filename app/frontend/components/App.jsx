@@ -1,52 +1,51 @@
 import React, { useState, useCallback } from 'react'
 import LocationMap from './LocationMap'
+import Dropdown from './Dropdown'
+import Confirmation from './Confirmation'
 
-// A few San Francisco reference points for quick selection.
-const SF_PRESETS = [
-  { name: 'Ferry Building', lat: 37.7955, lng: -122.3937 },
-  { name: 'Union Square', lat: 37.788, lng: -122.4074 },
-  { name: 'Mission Dolores Park', lat: 37.7596, lng: -122.4269 },
-  { name: 'Golden Gate Park (de Young)', lat: 37.7694, lng: -122.4862 },
-  { name: "Fisherman's Wharf", lat: 37.808, lng: -122.4177 },
-  { name: 'Twin Peaks', lat: 37.7544, lng: -122.4477 },
-  { name: 'Chase Center', lat: 37.768, lng: -122.3892 },
-  { name: 'Presidio (Main Post)', lat: 37.7989, lng: -122.4662 },
+// San Francisco places. `landmark: true` entries also appear in the quick
+// landmark picker; all of them are searchable in the address field.
+const SF_PLACES = [
+  { value: 'ferry-building', label: 'Ferry Building', hint: 'Embarcadero', lat: 37.7955, lng: -122.3937, landmark: true },
+  { value: 'union-square', label: 'Union Square', hint: 'Downtown', lat: 37.788, lng: -122.4074, landmark: true },
+  { value: 'dolores-park', label: 'Mission Dolores Park', hint: 'Mission', lat: 37.7596, lng: -122.4269, landmark: true },
+  { value: 'de-young', label: 'de Young Museum', hint: 'Golden Gate Park', lat: 37.7714, lng: -122.4686, landmark: true },
+  { value: 'fishermans-wharf', label: "Fisherman's Wharf", hint: 'Northern Waterfront', lat: 37.808, lng: -122.4177, landmark: true },
+  { value: 'twin-peaks', label: 'Twin Peaks', hint: 'Twin Peaks', lat: 37.7544, lng: -122.4477, landmark: true },
+  { value: 'chase-center', label: 'Chase Center', hint: 'Mission Bay', lat: 37.768, lng: -122.3892, landmark: true },
+  { value: 'presidio', label: 'Presidio — Main Post', hint: 'Presidio', lat: 37.7989, lng: -122.4662, landmark: true },
+  { value: 'salesforce-tower', label: 'Salesforce Tower', hint: '415 Mission St · Financial District', lat: 37.7897, lng: -122.3972 },
+  { value: 'city-hall', label: 'San Francisco City Hall', hint: '1 Dr Carlton B Goodlett Pl · Civic Center', lat: 37.7793, lng: -122.4193 },
+  { value: 'oracle-park', label: 'Oracle Park', hint: '24 Willie Mays Plaza · South Beach', lat: 37.7786, lng: -122.3893 },
+  { value: 'palace-fine-arts', label: 'Palace of Fine Arts', hint: '3601 Lyon St · Marina', lat: 37.803, lng: -122.4487 },
+  { value: 'coit-tower', label: 'Coit Tower', hint: '1 Telegraph Hill Blvd · Telegraph Hill', lat: 37.8024, lng: -122.4058 },
+  { value: 'painted-ladies', label: 'Painted Ladies', hint: '710 Steiner St · Alamo Square', lat: 37.7763, lng: -122.4328 },
+  { value: 'haight-ashbury', label: 'Haight-Ashbury', hint: 'Haight St & Ashbury St', lat: 37.7699, lng: -122.4469 },
+  { value: 'lands-end', label: 'Lands End Lookout', hint: '680 Point Lobos Ave · Outer Richmond', lat: 37.7795, lng: -122.5107 },
+  { value: 'ghirardelli', label: 'Ghirardelli Square', hint: '900 North Point St · Fisherman’s Wharf', lat: 37.8058, lng: -122.4229 },
+  { value: 'sf-zoo', label: 'San Francisco Zoo', hint: 'Sloat Blvd · Outer Sunset', lat: 37.7325, lng: -122.503 },
 ]
+const PLACE_BY_VALUE = Object.fromEntries(SF_PLACES.map((p) => [p.value, p]))
+const LANDMARK_OPTIONS = SF_PLACES.filter((p) => p.landmark).map(({ value, label, hint }) => ({ value, label, hint }))
+const ADDRESS_OPTIONS = SF_PLACES.map(({ value, label, hint }) => ({ value, label, hint }))
 
 const SF_BOUNDS = { minLat: 37.70, maxLat: 37.84, minLng: -122.53, maxLng: -122.34 }
 const outsideSF = (lat, lng) =>
   lat < SF_BOUNDS.minLat || lat > SF_BOUNDS.maxLat || lng < SF_BOUNDS.minLng || lng > SF_BOUNDS.maxLng
 
-// Per-field coordinate validation → null when valid, else a short message.
-const COORD_RANGE = { lat: [-90, 90], lng: [-180, 180] }
-function validateCoord(value, kind) {
-  const v = value.trim()
-  if (v === '') return 'Required'
-  const n = Number(v)
-  if (Number.isNaN(n)) return 'Must be a number'
-  const [min, max] = COORD_RANGE[kind]
-  if (n < min || n > max) return `Must be between ${min} and ${max}`
-  return null
-}
-
 function geoErrorMessage(err) {
   switch (err.code) {
     case err.PERMISSION_DENIED:
-      return 'Location permission was denied. Enable it in your browser, or enter a location manually.'
+      return 'Location permission was denied. Enable it in your browser, or choose a location instead.'
     case err.POSITION_UNAVAILABLE:
-      return 'Your location is currently unavailable. Try again, or enter a location manually.'
+      return 'Your location is currently unavailable. Try again, or choose a location instead.'
     case err.TIMEOUT:
-      return 'Timed out while finding your location. Try again, or enter a location manually.'
+      return 'Timed out while finding your location. Try again, or choose a location instead.'
     default:
       return 'Something went wrong while finding your location.'
   }
 }
 
-const ChevronDown = () => (
-  <svg className="til-select__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-    <path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-)
 const AlertIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
     <circle cx="12" cy="12" r="10" /><path d="M12 8v4" strokeLinecap="round" /><path d="M12 16h.01" strokeLinecap="round" />
@@ -63,18 +62,16 @@ export default function App() {
   const [mode, setMode] = useState('detect') // 'detect' | 'manual'
   const [status, setStatus] = useState('idle') // detect: 'idle' | 'locating' | 'error'
   const [error, setError] = useState(null)
-  const [position, setPosition] = useState(null) // { lat, lng, accuracy, source, timestamp }
+  const [position, setPosition] = useState(null)
 
-  const [latInput, setLatInput] = useState('')
-  const [lngInput, setLngInput] = useState('')
-  const [preset, setPreset] = useState('')
-  const [touched, setTouched] = useState({ lat: false, lng: false })
-  const [submitAttempted, setSubmitAttempted] = useState(false)
+  const [placeValue, setPlaceValue] = useState('')
+  const [manualError, setManualError] = useState(null)
+  const [confirm, setConfirm] = useState({ msg: '', n: 0 })
 
-  // Run the reveal choreography: text out → "Your location" + map in.
   const reveal = useCallback((pos) => {
     setPosition(pos)
     setStatus('idle')
+    setConfirm((c) => ({ msg: `Location set — ${pos.source}`, n: c.n + 1 }))
     setPhase('exiting')
     window.setTimeout(() => setPhase('located'), 260)
   }, [])
@@ -88,7 +85,7 @@ export default function App() {
   const detect = useCallback(() => {
     if (!('geolocation' in navigator)) {
       setStatus('error')
-      setError('Geolocation is not supported by this browser. Enter a location manually instead.')
+      setError('Geolocation is not supported by this browser. Choose a location instead.')
       return
     }
     setStatus('locating')
@@ -110,35 +107,24 @@ export default function App() {
     )
   }, [reveal])
 
-  const choosePreset = useCallback((name) => {
-    setPreset(name)
-    const p = SF_PRESETS.find((x) => x.name === name)
-    if (p) {
-      setLatInput(String(p.lat))
-      setLngInput(String(p.lng))
-      setTouched({ lat: false, lng: false })
-      setSubmitAttempted(false)
-    }
+  const choosePlace = useCallback((value) => {
+    setPlaceValue(value)
+    setManualError(null)
   }, [])
 
   const submitManual = useCallback(
     (e) => {
       e.preventDefault()
-      setSubmitAttempted(true)
-      if (validateCoord(latInput, 'lat') || validateCoord(lngInput, 'lng')) return
-      reveal({
-        lat: Number(latInput),
-        lng: Number(lngInput),
-        accuracy: null,
-        source: preset ? `Preset — ${preset}` : 'Manual entry',
-        timestamp: Date.now(),
-      })
+      const place = PLACE_BY_VALUE[placeValue]
+      if (!place) {
+        setManualError('Pick a landmark or search for an address.')
+        return
+      }
+      setManualError(null)
+      reveal({ lat: place.lat, lng: place.lng, accuracy: null, source: place.label, timestamp: Date.now() })
     },
-    [latInput, lngInput, preset, reveal]
+    [placeValue, reveal]
   )
-
-  const latError = touched.lat || submitAttempted ? validateCoord(latInput, 'lat') : null
-  const lngError = touched.lng || submitAttempted ? validateCoord(lngInput, 'lng') : null
 
   const locating = status === 'locating'
   const located = phase === 'located'
@@ -149,6 +135,8 @@ export default function App() {
 
   return (
     <main className="gf-page">
+      <Confirmation message={confirm.msg} trigger={confirm.n} />
+
       <div className={`gf-stage${located ? ' is-located' : ''}`}>
         <div className="gf-main">
           {!located && (
@@ -160,8 +148,8 @@ export default function App() {
                 </span>
                 <h1 className="til-h1 gf-title">Find the nearest gas station.</h1>
                 <p className="til-body-lg gf-lede">
-                  Start from where you are — let your browser locate you, or enter a
-                  San Francisco location by hand.
+                  Start from where you are — let your browser locate you, or choose a
+                  San Francisco location.
                 </p>
               </header>
 
@@ -181,7 +169,7 @@ export default function App() {
                     aria-checked={mode === 'manual'}
                     onClick={() => setMode('manual')}
                   >
-                    Enter a location
+                    Choose a location
                   </button>
                 </div>
 
@@ -211,61 +199,36 @@ export default function App() {
                 {mode === 'manual' && (
                   <form className="gf-panel" onSubmit={submitManual}>
                     <div className="til-field">
-                      <label className="til-field__label" htmlFor="gf-preset">
+                      <label className="til-field__label" htmlFor="gf-landmark">
                         San Francisco landmark
                         <span className="til-field__optional">optional</span>
                       </label>
-                      <div className="til-select">
-                        <select
-                          id="gf-preset"
-                          className="til-input"
-                          value={preset}
-                          onChange={(e) => choosePreset(e.target.value)}
-                        >
-                          <option value="">Choose a point…</option>
-                          {SF_PRESETS.map((p) => (
-                            <option key={p.name} value={p.name}>{p.name}</option>
-                          ))}
-                        </select>
-                        <ChevronDown />
-                      </div>
+                      <Dropdown
+                        id="gf-landmark"
+                        options={LANDMARK_OPTIONS}
+                        value={placeValue}
+                        onChange={choosePlace}
+                        placeholder="Choose a landmark…"
+                        ariaLabel="San Francisco landmark"
+                      />
                     </div>
 
-                    <div className="gf-coords">
-                      <div className="til-field">
-                        <label className="til-field__label" htmlFor="gf-lat">Latitude</label>
-                        <input
-                          id="gf-lat"
-                          className="til-input til-input--mono"
-                          inputMode="decimal"
-                          placeholder="37.7955"
-                          value={latInput}
-                          onChange={(e) => { setLatInput(e.target.value); setPreset('') }}
-                          onBlur={() => setTouched((t) => ({ ...t, lat: true }))}
-                          aria-invalid={Boolean(latError)}
-                          aria-describedby={latError ? 'gf-lat-err' : undefined}
-                        />
-                        {latError && (
-                          <span className="til-field__error" id="gf-lat-err"><AlertIcon /> {latError}</span>
-                        )}
-                      </div>
-                      <div className="til-field">
-                        <label className="til-field__label" htmlFor="gf-lng">Longitude</label>
-                        <input
-                          id="gf-lng"
-                          className="til-input til-input--mono"
-                          inputMode="decimal"
-                          placeholder="-122.3937"
-                          value={lngInput}
-                          onChange={(e) => { setLngInput(e.target.value); setPreset('') }}
-                          onBlur={() => setTouched((t) => ({ ...t, lng: true }))}
-                          aria-invalid={Boolean(lngError)}
-                          aria-describedby={lngError ? 'gf-lng-err' : undefined}
-                        />
-                        {lngError && (
-                          <span className="til-field__error" id="gf-lng-err"><AlertIcon /> {lngError}</span>
-                        )}
-                      </div>
+                    <div className="til-field">
+                      <label className="til-field__label" htmlFor="gf-address">Address or place</label>
+                      <Dropdown
+                        id="gf-address"
+                        options={ADDRESS_OPTIONS}
+                        value={placeValue}
+                        onChange={choosePlace}
+                        placeholder="Search an address or place…"
+                        searchPlaceholder="Type an address or place…"
+                        searchable
+                        ariaLabel="Address or place"
+                        invalid={Boolean(manualError)}
+                      />
+                      {manualError && (
+                        <span className="til-field__error"><AlertIcon /> {manualError}</span>
+                      )}
                     </div>
 
                     <button type="submit" className="til-btn til-btn--primary til-btn--lg til-btn--block">
