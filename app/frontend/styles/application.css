@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+/* Interview Loop design system — tokens, base, components */
+@import "./design_system/colors.css";
+@import "./design_system/typography.css";
+@import "./design_system/spacing.css";
+@import "./design_system/base.css";
+@import "./design_system/components.css";
+
+/* App-specific page layout */
+@import "./app.css";
