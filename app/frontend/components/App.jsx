@@ -478,6 +478,21 @@ export default function App() {
           </aside>
         )}
       </div>
+
+      <footer className="gf-footer">
+        <span className="gf-footer__brand">Gas Finder · San Francisco</span>
+        <nav className="gf-footer__nav" aria-label="About this app">
+          <a
+            className="til-arrowlink til-arrowlink--muted til-arrowlink--sm"
+            href="https://github.com/dylanerichards/gasfinder"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <span className="til-arrowlink__label">Source</span>
+            <span aria-hidden="true">↗</span>
+          </a>
+        </nav>
+      </footer>
     </main>
   )
 }
