@@ -12,6 +12,9 @@ Rails.application.routes.draw do
   # Address search proxy (OpenStreetMap / Nominatim)
   get "/api/geocode", to: "geocode#index"
 
+  # Nearest fuel stations proxy (OpenStreetMap / Overpass)
+  get "/api/gas_stations", to: "gas_stations#index"
+
   # Defines the root path route ("/")
   root "home#index"
 end
