@@ -6,7 +6,7 @@ CHROME_PATH = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome".fre
 
 Capybara.register_driver(:cuprite) do |app|
   options = {
-    window_size: [1280, 900],
+    window_size: [ 1280, 900 ],
     # Give the first run room to trigger the Vite build and boot Chrome.
     process_timeout: 120,
     timeout: 30,
