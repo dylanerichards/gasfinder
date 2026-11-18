@@ -30,4 +30,4 @@ end
 # Serve the in-process app so WebMock can intercept its outbound HTTP.
 Capybara.server = :puma, { Silent: true }
 Capybara.javascript_driver = :cuprite
-Capybara.default_max_wait_time = 10
+Capybara.default_max_wait_time = 15

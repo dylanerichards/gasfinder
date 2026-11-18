@@ -58,6 +58,13 @@ jobs:
       - name: Install JS dependencies
         run: npm ci
 
+      # Pre-build the Vite test bundle so the first system spec doesn't race the
+      # on-demand build against Chrome's cold start (Ferrum::ProcessTimeoutError).
+      - name: Build test assets
+        env:
+          RAILS_ENV: test
+        run: bin/vite build
+
       - name: Run tests
         env:
           RAILS_ENV: test
