@@ -91,8 +91,8 @@ export default function App() {
         reveal({
           lat: pos.coords.latitude,
           lng: pos.coords.longitude,
-          accuracy: pos.coords.accuracy,
-          source: 'Device GPS',
+          source: 'Current location',
+          place: null,
           timestamp: pos.timestamp,
         }),
       (err) => {
@@ -123,8 +123,8 @@ export default function App() {
       reveal({
         lat: selectedPlace.lat,
         lng: selectedPlace.lng,
-        accuracy: null,
         source: selectedPlace.label,
+        place: [selectedPlace.label, selectedPlace.hint].filter(Boolean).join(', '),
         timestamp: Date.now(),
       })
     },
@@ -259,23 +259,21 @@ export default function App() {
 
               <div className="gf-details">
                 <div className="gf-details__head">
-                  <span className="til-badge til-badge--success">
+                  <span
+                    className="til-badge til-badge--success gf-pill"
+                    tabIndex={0}
+                    aria-label={`Location set. Latitude ${position.lat.toFixed(6)}, longitude ${position.lng.toFixed(6)}.`}
+                  >
                     <span className="til-badge__dot" />
                     Location set
+                    <span className="gf-pill__tip" role="tooltip">
+                      <span className="gf-pill__row"><span>Lat</span><span>{position.lat.toFixed(6)}</span></span>
+                      <span className="gf-pill__row"><span>Lng</span><span>{position.lng.toFixed(6)}</span></span>
+                    </span>
                   </span>
-                  <span className="til-caption">{position.source}</span>
                 </div>
 
-                <dl className="til-meta">
-                  <dt>Latitude</dt>
-                  <dd className="til-mono">{position.lat.toFixed(6)}</dd>
-                  <dt>Longitude</dt>
-                  <dd className="til-mono">{position.lng.toFixed(6)}</dd>
-                  <dt>Accuracy</dt>
-                  <dd className="til-mono">{position.accuracy != null ? `±${Math.round(position.accuracy)} m` : '—'}</dd>
-                  <dt>As of</dt>
-                  <dd className="til-mono">{new Date(position.timestamp).toLocaleTimeString()}</dd>
-                </dl>
+                <p className="gf-place">{position.place || position.source}</p>
 
                 {showSFNote && (
                   <div className="til-callout til-callout--note">

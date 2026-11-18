@@ -50,12 +50,27 @@ class GeocodeController < ApplicationController
     lng = row["lon"]&.to_f
     return nil unless lat && lng
 
-    name = row["display_name"].to_s
-    primary, *rest = name.split(", ")
+    addr = row["address"] || {}
+    display = row["display_name"].to_s
+    house = addr["house_number"].presence
+    road = (addr["road"] || addr["pedestrian"] || addr["footway"]).presence
+    poi = row["name"].to_s.strip.presence
+
+    # Prefer a full street address ("595 Market Street"); then a POI name; then the road.
+    street = house && road ? "#{house} #{road}" : nil
+    label = street || poi || road || display.split(", ").first
+
+    locality = [
+      addr["neighbourhood"] || addr["suburb"] || addr["quarter"] || addr["city_district"],
+      addr["city"] || addr["town"] || addr["village"]
+    ].compact.reject(&:empty?).uniq
+    hint = locality.join(", ")
+    hint = display.split(", ").drop(1).first(3).join(", ") if hint.empty?
+
     {
       value: "osm-#{row['osm_type']}-#{row['osm_id']}",
-      label: primary.presence || name,
-      hint: rest.first(3).join(", "),
+      label: label.presence || display,
+      hint: hint,
       lat: lat,
       lng: lng
     }

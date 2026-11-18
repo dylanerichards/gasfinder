@@ -94,6 +94,46 @@ RSpec.describe "GET /api/geocode", type: :request do
     end
   end
 
+  context "with structured address details" do
+    it "builds the label from the house number and road" do
+      rows = [
+        {
+          osm_type: "way", osm_id: 595,
+          lat: "37.7897", lon: "-122.3972",
+          name: "",
+          display_name: "595, Market Street, Yerba Buena, San Francisco, California, 94105, United States",
+          address: { "house_number" => "595", "road" => "Market Street", "neighbourhood" => "Yerba Buena", "city" => "San Francisco" }
+        }
+      ]
+      stub_request(:get, nominatim_url).with(query: hash_including({})).to_return(status: 200, body: rows.to_json)
+
+      get "/api/geocode", params: { q: "595 market" }
+
+      result = json_body.first
+      expect(result["label"]).to eq("595 Market Street")
+      expect(result["hint"]).to eq("Yerba Buena, San Francisco")
+    end
+
+    it "uses the place name for a POI with no house number" do
+      rows = [
+        {
+          osm_type: "way", osm_id: 10,
+          lat: "37.7955", lon: "-122.3937",
+          name: "Ferry Building",
+          display_name: "Ferry Building, The Embarcadero, San Francisco, California, United States",
+          address: { "road" => "The Embarcadero", "neighbourhood" => "Embarcadero", "city" => "San Francisco" }
+        }
+      ]
+      stub_request(:get, nominatim_url).with(query: hash_including({})).to_return(status: 200, body: rows.to_json)
+
+      get "/api/geocode", params: { q: "ferry building" }
+
+      result = json_body.first
+      expect(result["label"]).to eq("Ferry Building")
+      expect(result["hint"]).to eq("Embarcadero, San Francisco")
+    end
+  end
+
   context "when some upstream rows are missing coordinates" do
     before do
       rows = [

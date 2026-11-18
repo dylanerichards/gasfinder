@@ -15,11 +15,15 @@ RSpec.describe "Location finder", type: :system do
     # The reveal animation swaps the intro for the "Your location" panel.
     expect(page).to have_css("h1", text: "Your location")
 
-    # The meta list shows the picked landmark's latitude (toFixed(6)).
-    within("dl.til-meta") do
-      expect(page).to have_content("Latitude")
-      expect(page).to have_content("37.795500")
-    end
+    # The full address line names the place; accuracy and "as of" are gone.
+    expect(page).to have_css(".gf-place", text: "Ferry Building")
+    expect(page).to have_no_content("Accuracy")
+    expect(page).to have_no_content("As of")
+
+    # Latitude/longitude live on the "Location set" pill (aria-label + hover tooltip).
+    pill = find(".gf-pill")
+    expect(pill["aria-label"]).to include("37.795500")
+    expect(pill).to have_css(".gf-pill__tip", text: "37.795500", visible: :all)
 
     # The confirmation toast names the place.
     expect(page).to have_css(".gf-toast.is-show", text: "Location set — Ferry Building")
@@ -55,6 +59,7 @@ RSpec.describe "Location finder", type: :system do
     click_button "Set location"
 
     expect(page).to have_css("h1", text: "Your location")
+    expect(page).to have_css(".gf-place", text: "Ferry Building")
     expect(page).to have_css(".gf-toast.is-show", text: "Location set — Ferry Building")
     expect(page).to have_css(".leaflet-container")
   end

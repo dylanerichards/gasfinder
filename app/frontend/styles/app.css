@@ -116,6 +116,26 @@
 .gf-details__head{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap}
 .gf-details__actions{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap;padding-top:var(--space-2)}
 
+/* Full address line on the result */
+.gf-place{font-size:19px;font-weight:600;letter-spacing:-.01em;line-height:1.3;color:var(--fg-default)}
+
+/* "Location set" pill with lat/long on hover or focus */
+.gf-pill{position:relative;cursor:default;outline-offset:3px}
+.gf-pill__tip{
+  position:absolute;left:0;bottom:calc(100% + 8px);z-index:var(--z-tooltip);
+  display:flex;flex-direction:column;gap:3px;min-width:168px;
+  padding:8px 10px;border-radius:var(--radius-2);
+  background:var(--neutral-900);color:#fff;
+  font-family:var(--font-mono);font-size:12px;line-height:1.3;
+  box-shadow:var(--shadow-lg);
+  opacity:0;transform:translateY(4px);pointer-events:none;
+  transition:opacity var(--duration-fast) var(--ease-out),transform var(--duration-fast) var(--ease-out);
+}
+.gf-pill__row{display:flex;justify-content:space-between;gap:16px}
+.gf-pill__row span:first-child{color:var(--neutral-400)}
+.gf-pill:hover .gf-pill__tip,.gf-pill:focus-visible .gf-pill__tip{opacity:1;transform:translateY(0)}
+@media (prefers-reduced-motion:reduce){.gf-pill__tip{transition:opacity var(--duration-fast)}}
+
 /* Map column — slides in from the right */
 .gf-mapcol{
   min-width:0;
