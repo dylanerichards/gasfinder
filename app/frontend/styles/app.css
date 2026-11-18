@@ -164,6 +164,36 @@
 .gf-marker__dot{position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;background:var(--cobalt-600);border:2px solid #fff;border-radius:50%;box-shadow:0 1px 4px rgba(31,35,40,.4)}
 .gf-marker__ring{position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border:2px solid var(--cobalt-500);border-radius:50%;opacity:.4;animation:gf-pulse 2.4s var(--ease-standard) infinite}
 
+/* ——— Nearest-station list (left column) ——— */
+.gf-stations__head{margin-bottom:var(--space-3)}
+.gf-stations{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;border:1px solid var(--border-default);border-radius:var(--radius-card);background:var(--bg-canvas);overflow:hidden}
+.gf-station{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid var(--border-muted);transition:background-color var(--duration-fast) var(--ease-standard)}
+.gf-station:first-child{border-top:0}
+.gf-station:hover{background:var(--bg-subtle)}
+.gf-station.is-selected{background:var(--bg-selected);box-shadow:inset 3px 0 0 var(--brand-primary)}
+.gf-station__n{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;flex:none;border-radius:50%;background:var(--neutral-700);color:#fff;font-family:var(--font-mono);font-size:12px;font-weight:600}
+.gf-station.is-selected .gf-station__n{background:var(--cobalt-600)}
+.gf-station__text{display:flex;flex-direction:column;gap:3px;min-width:0}
+.gf-station__name{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:14px;font-weight:600;line-height:1.3;color:var(--fg-default)}
+.gf-station__tag{height:20px;padding:0 8px}
+.gf-station__tag svg{width:12px;height:12px}
+.gf-station__meta{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--fg-muted);min-width:0}
+.gf-station__dist{font-family:var(--font-mono);font-weight:600;color:var(--fg-default);white-space:nowrap}
+.gf-station__detail{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gf-station__btn{flex:none;white-space:nowrap}
+.gf-stations__state{display:flex;align-items:center;gap:10px;padding:16px;border:1px dashed var(--border-default);border-radius:var(--radius-card);background:var(--bg-subtle);color:var(--fg-muted);font-size:14px;line-height:1.45}
+.gf-stations__state svg{width:16px;height:16px;flex:none}
+.gf-spin{animation:til-spin 1s linear infinite}
+.gf-destnote strong{font-weight:600}
+
+/* Numbered teardrop station pins — graphite by default, cobalt when selected */
+.gf-smarker{position:relative}
+.gf-smarker__pin{position:absolute;left:50%;bottom:0;width:22px;height:22px;margin-left:-11px;background:var(--neutral-700);border:2px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 1px 4px rgba(31,35,40,.4)}
+.gf-smarker__n{position:absolute;left:50%;top:9px;transform:translateX(-50%);color:#fff;font-family:var(--font-mono);font-size:11px;font-weight:600;line-height:1;pointer-events:none}
+.gf-smarker--on{z-index:1}
+.gf-smarker--on .gf-smarker__pin{background:var(--cobalt-600);width:26px;height:26px;margin-left:-13px;box-shadow:0 0 0 4px var(--cobalt-200),0 1px 5px rgba(31,35,40,.45)}
+.gf-smarker--on .gf-smarker__n{top:11px;font-size:12px}
+
 @keyframes gf-fade-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @keyframes gf-slide-in{from{opacity:0;transform:translateX(48px)}to{opacity:1;transform:none}}
 @keyframes gf-pulse{0%{transform:scale(.7);opacity:.5}70%{transform:scale(1.4);opacity:0}100%{opacity:0}}

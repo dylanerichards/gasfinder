@@ -1,7 +1,8 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 import LocationMap from './LocationMap'
 import Dropdown from './Dropdown'
 import Confirmation from './Confirmation'
+import StationList from './StationList'
 
 // Curated landmarks for the quick picker (value, label, hint, lat, lng).
 const LANDMARKS = [
@@ -18,6 +19,16 @@ const LANDMARKS = [
 // Real address search via the Rails geocode proxy (OpenStreetMap / Nominatim).
 async function searchAddress(query) {
   const res = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`, {
+    headers: { Accept: 'application/json' },
+  })
+  if (!res.ok) return []
+  const data = await res.json()
+  return Array.isArray(data) ? data : []
+}
+
+// Nearest fuel stations via the Rails Overpass proxy.
+async function searchGasStations(lat, lng) {
+  const res = await fetch(`/api/gas_stations?lat=${lat}&lng=${lng}`, {
     headers: { Accept: 'application/json' },
   })
   if (!res.ok) return []
@@ -64,6 +75,47 @@ export default function App() {
   const [manualError, setManualError] = useState(null)
   const [confirm, setConfirm] = useState({ msg: '', n: 0 })
 
+  // Nearest gas stations for the current position + the chosen destination.
+  const [stations, setStations] = useState([])
+  const [stationsStatus, setStationsStatus] = useState('idle') // 'idle' | 'loading' | 'ready' | 'error'
+  const [destination, setDestination] = useState(null)
+
+  // Fetch the nearest stations whenever the location changes.
+  useEffect(() => {
+    if (!position) return undefined
+    let cancelled = false
+    setStations([])
+    setDestination(null)
+    setStationsStatus('loading')
+    searchGasStations(position.lat, position.lng)
+      .then((list) => {
+        if (cancelled) return
+        setStations(list)
+        setStationsStatus('ready')
+      })
+      .catch(() => {
+        if (cancelled) return
+        setStations([])
+        setStationsStatus('error')
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [position])
+
+  // Toggle a station as the destination (kept so it can drive directions later).
+  const selectDestination = useCallback((station) => {
+    setDestination((current) => (current && current.id === station.id ? null : station))
+  }, [])
+
+  const selectDestinationById = useCallback(
+    (id) => {
+      const station = stations.find((s) => s.id === id)
+      if (station) selectDestination(station)
+    },
+    [stations, selectDestination]
+  )
+
   const reveal = useCallback((pos) => {
     setPosition(pos)
     setStatus('idle')
@@ -76,6 +128,9 @@ export default function App() {
     setPhase('input')
     setPosition(null)
     setError(null)
+    setStations([])
+    setStationsStatus('idle')
+    setDestination(null)
   }, [])
 
   const detect = useCallback(() => {
@@ -275,6 +330,17 @@ export default function App() {
 
                 <p className="gf-place">{position.place || position.source}</p>
 
+                {destination && (
+                  <div className="til-callout til-callout--note gf-destnote">
+                    <span className="til-callout__icon"><InfoIcon /></span>
+                    <div className="til-callout__main">
+                      <span className="til-callout__body">
+                        Destination set to <strong>{destination.name}</strong>. Directions are coming soon.
+                      </span>
+                    </div>
+                  </div>
+                )}
+
                 {showSFNote && (
                   <div className="til-callout til-callout--note">
                     <span className="til-callout__icon"><InfoIcon /></span>
@@ -297,13 +363,27 @@ export default function App() {
                   </button>
                 </div>
               </div>
+
+              <StationList
+                status={stationsStatus}
+                stations={stations}
+                destinationId={destination?.id}
+                onSelect={selectDestination}
+              />
             </>
           )}
         </div>
 
         {located && position && (
           <aside className="gf-mapcol">
-            <LocationMap lat={position.lat} lng={position.lng} label={position.source} />
+            <LocationMap
+              lat={position.lat}
+              lng={position.lng}
+              label={position.source}
+              stations={stations}
+              destinationId={destination?.id}
+              onSelectDestination={selectDestinationById}
+            />
           </aside>
         )}
       </div>
