@@ -15,6 +15,9 @@ Rails.application.routes.draw do
   # Nearest fuel stations proxy (OpenStreetMap / Overpass)
   get "/api/gas_stations", to: "gas_stations#index"
 
+  # Turn-by-turn routing proxy (OSRM — routing.openstreetmap.de)
+  get "/api/route", to: "route#index"
+
   # Defines the root path route ("/")
   root "home#index"
 end
