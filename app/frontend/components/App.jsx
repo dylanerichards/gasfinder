@@ -96,6 +96,8 @@ export default function App() {
   const [stations, setStations] = useState([])
   const [stationsStatus, setStationsStatus] = useState('idle') // 'idle' | 'loading' | 'ready' | 'error'
   const [destination, setDestination] = useState(null)
+  const [stationsOpen, setStationsOpen] = useState(true) // list collapses once a destination is locked in
+  const [autoPicking, setAutoPicking] = useState(null) // null | 'drive' | 'walk' while computing the shortest route
 
   // Turn-by-turn route from the user to the chosen destination.
   const [travelMode, setTravelMode] = useState('drive') // 'drive' | 'walk'
@@ -157,10 +159,39 @@ export default function App() {
     }
   }, [position, destination, travelMode])
 
+  // Collapse the station list once a destination is locked in; reopen when cleared.
+  useEffect(() => {
+    setStationsOpen(!destination)
+  }, [destination])
+
   // Toggle a station as the destination (kept so it can drive directions later).
   const selectDestination = useCallback((station) => {
     setDestination((current) => (current && current.id === station.id ? null : station))
   }, [])
+
+  // Auto-pick the station with the shortest actual route for a travel mode.
+  const selectShortest = useCallback(
+    async (m) => {
+      if (!position || stations.length === 0 || autoPicking) return
+      setAutoPicking(m)
+      try {
+        const results = await Promise.all(
+          stations.map((s) =>
+            fetchRoute(position, s, m).then((r) => ({ s, r })).catch(() => ({ s, r: null }))
+          )
+        )
+        const valid = results.filter((x) => x.r && Number.isFinite(x.r.distance_m))
+        if (valid.length > 0) {
+          const best = valid.reduce((a, b) => (b.r.distance_m < a.r.distance_m ? b : a))
+          setTravelMode(m)
+          setDestination(best.s)
+        }
+      } finally {
+        setAutoPicking(null)
+      }
+    },
+    [position, stations, autoPicking]
+  )
 
   const selectDestinationById = useCallback(
     (id) => {
@@ -185,6 +216,8 @@ export default function App() {
     setStations([])
     setStationsStatus('idle')
     setDestination(null)
+    setStationsOpen(true)
+    setAutoPicking(null)
   }, [])
 
   const detect = useCallback(() => {
@@ -412,6 +445,10 @@ export default function App() {
                 stations={stations}
                 destinationId={destination?.id}
                 onSelect={selectDestination}
+                open={stationsOpen}
+                onShowAll={() => setStationsOpen(true)}
+                onShortest={selectShortest}
+                autoPicking={autoPicking}
               />
 
               {destination && (

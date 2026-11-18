@@ -165,7 +165,21 @@
 .gf-marker__ring{position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border:2px solid var(--cobalt-500);border-radius:50%;opacity:.4;animation:gf-pulse 2.4s var(--ease-standard) infinite}
 
 /* ——— Nearest-station list (left column) ——— */
-.gf-stations__head{margin-bottom:var(--space-3)}
+.gf-stations-sec{display:flex;flex-direction:column;gap:var(--space-3)}
+.gf-stations__head{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);flex-wrap:wrap}
+.gf-auto{display:flex;gap:8px}
+.gf-auto__btn{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border:1px solid var(--border-accent-muted);border-radius:var(--radius-pill);background:var(--bg-accent-muted);color:var(--cobalt-700);font-family:var(--font-sans);font-size:12.5px;font-weight:600;cursor:pointer;transition:background-color var(--duration-fast) var(--ease-standard),border-color var(--duration-fast) var(--ease-standard)}
+.gf-auto__btn:hover:not(:disabled){background:var(--cobalt-100);border-color:var(--cobalt-300)}
+.gf-auto__btn:disabled{opacity:.6;cursor:not-allowed}
+.gf-auto__btn svg{width:14px;height:14px}
+.gf-stations__showall{align-self:center}
+/* Collapsible full list — animates to 0 height once a destination is chosen */
+.gf-stations__collapsible{display:grid;grid-template-rows:1fr;transition:grid-template-rows var(--duration-slow) var(--ease-standard)}
+.gf-stations__collapsible[data-open="false"]{grid-template-rows:0fr}
+.gf-stations__inner{overflow:hidden;min-height:0}
+/* Chosen-destination summary shown while the list is collapsed */
+.gf-chosen{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--border-accent-muted);border-radius:var(--radius-card);background:var(--bg-accent-muted);animation:gf-fade-up var(--duration-base) var(--ease-standard) both}
+.gf-chosen .gf-station__n{background:var(--cobalt-600)}
 .gf-stations{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;border:1px solid var(--border-default);border-radius:var(--radius-card);background:var(--bg-canvas);overflow:hidden}
 .gf-station{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;padding:12px 14px;border-top:1px solid var(--border-muted);transition:background-color var(--duration-fast) var(--ease-standard)}
 .gf-station:first-child{border-top:0}
