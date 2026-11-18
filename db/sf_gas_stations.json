@@ -1,0 +1,538 @@
+[
+  {
+    "id": "osm-way-389494919",
+    "name": "7-Eleven",
+    "brand": null,
+    "address": "Geneva Avenue, Daly City",
+    "lat": 37.705107,
+    "lng": -122.407232
+  },
+  {
+    "id": "osm-way-175080539",
+    "name": "76",
+    "brand": null,
+    "address": "Bay Street, Fisherman's Wharf",
+    "lat": 37.80566,
+    "lng": -122.415015
+  },
+  {
+    "id": "osm-way-225193477",
+    "name": "76",
+    "brand": null,
+    "address": "Lombard Street, Cow Hollow",
+    "lat": 37.799257,
+    "lng": -122.44241
+  },
+  {
+    "id": "osm-way-274834414",
+    "name": "76",
+    "brand": null,
+    "address": "Geary Boulevard, Richmond District",
+    "lat": 37.780927,
+    "lng": -122.471541
+  },
+  {
+    "id": "osm-node-2054130301",
+    "name": "76",
+    "brand": null,
+    "address": "Ney Street, St. Mary's Park",
+    "lat": 37.730139,
+    "lng": -122.429624
+  },
+  {
+    "id": "osm-node-615277703",
+    "name": "76",
+    "brand": null,
+    "address": "Ocean Avenue, Westwood Park",
+    "lat": 37.722987,
+    "lng": -122.452926
+  },
+  {
+    "id": "osm-node-590623598",
+    "name": "76",
+    "brand": null,
+    "address": "401 Potrero Avenue, Mission",
+    "lat": 37.764303,
+    "lng": -122.407073
+  },
+  {
+    "id": "osm-node-2059530671",
+    "name": "76",
+    "brand": null,
+    "address": "Ocean Avenue, Excelsior",
+    "lat": 37.723846,
+    "lng": -122.437729
+  },
+  {
+    "id": "osm-node-409475787",
+    "name": "76 Gas",
+    "brand": null,
+    "address": "Geary Boulevard, Richmond District",
+    "lat": 37.779286,
+    "lng": -122.498456
+  },
+  {
+    "id": "osm-way-289546333",
+    "name": "Arco",
+    "brand": null,
+    "address": "2190 Carroll Avenue, Silver Terrace",
+    "lat": 37.730649,
+    "lng": -122.402786
+  },
+  {
+    "id": "osm-way-286277226",
+    "name": "Arco",
+    "brand": null,
+    "address": "19th Avenue, Sunset District",
+    "lat": 37.761441,
+    "lng": -122.477272
+  },
+  {
+    "id": "osm-way-362496647",
+    "name": "Arco",
+    "brand": null,
+    "address": "Divisadero Street, Lower Haight",
+    "lat": 37.773869,
+    "lng": -122.437375
+  },
+  {
+    "id": "osm-node-2059587298",
+    "name": "Arco",
+    "brand": null,
+    "address": "Sickles Avenue, San Francisco",
+    "lat": 37.709078,
+    "lng": -122.45272
+  },
+  {
+    "id": "osm-way-264954418",
+    "name": "Castro Gas & Food Mart",
+    "brand": null,
+    "address": "Market Street, Mission",
+    "lat": 37.762814,
+    "lng": -122.435497
+  },
+  {
+    "id": "osm-way-264954276",
+    "name": "Castro Gas & Food Mart",
+    "brand": null,
+    "address": "Castro Street, Duboce Triangle",
+    "lat": 37.762963,
+    "lng": -122.435423
+  },
+  {
+    "id": "osm-way-256903890",
+    "name": "Chevron",
+    "brand": null,
+    "address": "2399 Market Street, Duboce Triangle",
+    "lat": 37.762751,
+    "lng": -122.434566
+  },
+  {
+    "id": "osm-way-35599686",
+    "name": "Chevron",
+    "brand": null,
+    "address": "Irving Street, Richmond District",
+    "lat": 37.76383,
+    "lng": -122.476819
+  },
+  {
+    "id": "osm-way-243356572",
+    "name": "Chevron",
+    "brand": null,
+    "address": "Harriet Street, South of Market",
+    "lat": 37.777303,
+    "lng": -122.404638
+  },
+  {
+    "id": "osm-way-224920138",
+    "name": "Chevron",
+    "brand": null,
+    "address": "16th Street, Mission",
+    "lat": 37.764961,
+    "lng": -122.41724
+  },
+  {
+    "id": "osm-way-286264823",
+    "name": "Chevron",
+    "brand": null,
+    "address": "6000 Geary Boulevard, Richmond District",
+    "lat": 37.780398,
+    "lng": -122.4841
+  },
+  {
+    "id": "osm-way-262106675",
+    "name": "Chevron",
+    "brand": null,
+    "address": "1698 Fell Street, Panhandle",
+    "lat": 37.773212,
+    "lng": -122.445608
+  },
+  {
+    "id": "osm-way-268918005",
+    "name": "Chevron",
+    "brand": null,
+    "address": "19th Avenue, Golden Gate Heights",
+    "lat": 37.752693,
+    "lng": -122.476069
+  },
+  {
+    "id": "osm-node-1220797830",
+    "name": "Chevron",
+    "brand": null,
+    "address": "3rd Street, Bayview District",
+    "lat": 37.743115,
+    "lng": -122.388079
+  },
+  {
+    "id": "osm-node-1735978721",
+    "name": "Chevron",
+    "brand": null,
+    "address": "San Jose Avenue, Ocean View",
+    "lat": 37.711769,
+    "lng": -122.455625
+  },
+  {
+    "id": "osm-way-258866762",
+    "name": "Chevron",
+    "brand": null,
+    "address": "101 Bayshore Boulevard, Bayview District",
+    "lat": 37.74699,
+    "lng": -122.403429
+  },
+  {
+    "id": "osm-way-407324073",
+    "name": "Chevron",
+    "brand": null,
+    "address": "South Van Ness Avenue, South of Market",
+    "lat": 37.771886,
+    "lng": -122.418728
+  },
+  {
+    "id": "osm-node-992609579",
+    "name": "Chevron",
+    "brand": null,
+    "address": "1790 Lombard Street, Cow Hollow",
+    "lat": 37.800762,
+    "lng": -122.430965
+  },
+  {
+    "id": "osm-node-426234118",
+    "name": "Chevron",
+    "brand": null,
+    "address": "3675 Geary Boulevard, Jordan Park",
+    "lat": 37.780971,
+    "lng": -122.458522
+  },
+  {
+    "id": "osm-node-318304424",
+    "name": "Chevron",
+    "brand": null,
+    "address": "Junipero Serra Boulevard, San Francisco",
+    "lat": 37.718182,
+    "lng": -122.472938
+  },
+  {
+    "id": "osm-node-2148537238",
+    "name": "Dogpatch Biofuels",
+    "brand": null,
+    "address": "Pennsylvania Avenue, Potrero Terrace",
+    "lat": 37.756476,
+    "lng": -122.392802
+  },
+  {
+    "id": "osm-node-1040878092",
+    "name": "Double AA",
+    "brand": null,
+    "address": "Junipero Serra Boulevard, San Francisco",
+    "lat": 37.716202,
+    "lng": -122.472037
+  },
+  {
+    "id": "osm-node-4578182600",
+    "name": "Exxon",
+    "brand": null,
+    "address": "California Street, Jordan Park",
+    "lat": 37.785868,
+    "lng": -122.458843
+  },
+  {
+    "id": "osm-node-9941003179",
+    "name": "F T I Arco Gas Station",
+    "brand": null,
+    "address": "1200 Geneva Avenue, Crocker-Amazon",
+    "lat": 37.713871,
+    "lng": -122.435997
+  },
+  {
+    "id": "osm-node-992609557",
+    "name": "Fuel 24:7",
+    "brand": null,
+    "address": "Lombard Street, Marina District",
+    "lat": 37.798587,
+    "lng": -122.44452
+  },
+  {
+    "id": "osm-way-224920136",
+    "name": "Gas & Shop",
+    "brand": null,
+    "address": "17th Street, Mission",
+    "lat": 37.76383,
+    "lng": -122.417057
+  },
+  {
+    "id": "osm-way-1283211001",
+    "name": "Gas station",
+    "brand": null,
+    "address": "Bayshore Boulevard, Daly City",
+    "lat": 37.705706,
+    "lng": -122.406977
+  },
+  {
+    "id": "osm-node-13783997536",
+    "name": "Gas station",
+    "brand": null,
+    "address": "Bryant Street, West SoMa",
+    "lat": 37.773501,
+    "lng": -122.406079
+  },
+  {
+    "id": "osm-node-10764775828",
+    "name": "Gas station",
+    "brand": null,
+    "address": "25th Avenue, Richmond District",
+    "lat": 37.783626,
+    "lng": -122.485226
+  },
+  {
+    "id": "osm-way-536504534",
+    "name": "Independent",
+    "brand": null,
+    "address": "Woodside Avenue, San Francisco",
+    "lat": 37.745796,
+    "lng": -122.45188
+  },
+  {
+    "id": "osm-node-1229920752",
+    "name": "Martco",
+    "brand": null,
+    "address": "5098 Mission Street, Excelsior",
+    "lat": 37.71694,
+    "lng": -122.440998
+  },
+  {
+    "id": "osm-way-256495486",
+    "name": "Poppy",
+    "brand": null,
+    "address": "Turk Street, Civic Center",
+    "lat": 37.781899,
+    "lng": -122.422682
+  },
+  {
+    "id": "osm-way-288725636",
+    "name": "Royal Gas",
+    "brand": null,
+    "address": "975 Bayshore Boulevard, Silver Terrace",
+    "lat": 37.732082,
+    "lng": -122.403972
+  },
+  {
+    "id": "osm-node-6005674234",
+    "name": "Royal Gas",
+    "brand": null,
+    "address": "Lawton Street, Sunset District",
+    "lat": 37.756695,
+    "lng": -122.501673
+  },
+  {
+    "id": "osm-node-2025950349",
+    "name": "Royal Gas",
+    "brand": null,
+    "address": "24th Street, Mission",
+    "lat": 37.752309,
+    "lng": -122.420922
+  },
+  {
+    "id": "osm-way-173103722",
+    "name": "Sam Truong's 76",
+    "brand": null,
+    "address": "Taraval Street, Parkside",
+    "lat": 37.74245,
+    "lng": -122.486113
+  },
+  {
+    "id": "osm-way-219783391",
+    "name": "Shell",
+    "brand": null,
+    "address": "8th Street, South of Market",
+    "lat": 37.773407,
+    "lng": -122.408454
+  },
+  {
+    "id": "osm-way-263352717",
+    "name": "Shell",
+    "brand": null,
+    "address": "California Street, Lower Pacific Heights",
+    "lat": 37.788415,
+    "lng": -122.43577
+  },
+  {
+    "id": "osm-way-283457578",
+    "name": "Shell",
+    "brand": null,
+    "address": "19th Avenue, Parkside",
+    "lat": 37.743408,
+    "lng": -122.475968
+  },
+  {
+    "id": "osm-node-11011243619",
+    "name": "Shell",
+    "brand": null,
+    "address": "3rd Street, Potrero Hill",
+    "lat": 37.753139,
+    "lng": -122.388128
+  },
+  {
+    "id": "osm-node-318312719",
+    "name": "Shell",
+    "brand": null,
+    "address": "Alemany Boulevard, Outer Mission",
+    "lat": 37.717787,
+    "lng": -122.442783
+  },
+  {
+    "id": "osm-node-992609590",
+    "name": "Shell",
+    "brand": null,
+    "address": "Lombard Street, Cow Hollow",
+    "lat": 37.800661,
+    "lng": -122.431458
+  },
+  {
+    "id": "osm-node-1230343526",
+    "name": "Shell",
+    "brand": null,
+    "address": "Silver Avenue, Silver Terrace",
+    "lat": 37.732538,
+    "lng": -122.406123
+  },
+  {
+    "id": "osm-way-1411609226",
+    "name": "Shell",
+    "brand": null,
+    "address": "16th Street, Mission",
+    "lat": 37.764516,
+    "lng": -122.424404
+  },
+  {
+    "id": "osm-way-159953344",
+    "name": "Shell",
+    "brand": null,
+    "address": "Bryant Street, South of Market",
+    "lat": 37.779916,
+    "lng": -122.398017
+  },
+  {
+    "id": "osm-way-267730627",
+    "name": "Shell",
+    "brand": null,
+    "address": "19th Avenue, Richmond District",
+    "lat": 37.76513,
+    "lng": -122.477033
+  },
+  {
+    "id": "osm-node-358893271",
+    "name": "Shell",
+    "brand": null,
+    "address": "3550 Mission Street, Bernal Heights",
+    "lat": 37.740277,
+    "lng": -122.423699
+  },
+  {
+    "id": "osm-node-590624549",
+    "name": "Shell",
+    "brand": null,
+    "address": "Potrero Avenue, Mission",
+    "lat": 37.764744,
+    "lng": -122.407736
+  },
+  {
+    "id": "osm-node-393737824",
+    "name": "Shell",
+    "brand": null,
+    "address": "Cook Street, Laurel Heights",
+    "lat": 37.781543,
+    "lng": -122.451844
+  },
+  {
+    "id": "osm-node-2054130283",
+    "name": "Shell",
+    "brand": null,
+    "address": "Mission Street, Excelsior",
+    "lat": 37.729044,
+    "lng": -122.431338
+  },
+  {
+    "id": "osm-node-1230343415",
+    "name": "Silver Gas & Diesel",
+    "brand": null,
+    "address": "Silver Avenue, Silver Terrace",
+    "lat": 37.732214,
+    "lng": -122.405789
+  },
+  {
+    "id": "osm-way-1427741653",
+    "name": "Standard",
+    "brand": null,
+    "address": "1501 Van Ness Avenue, Western Addition",
+    "lat": 37.789622,
+    "lng": -122.422627
+  },
+  {
+    "id": "osm-node-1220797672",
+    "name": "Texaco",
+    "brand": null,
+    "address": "Evans Avenue, Bayview District",
+    "lat": 37.742676,
+    "lng": -122.38829
+  },
+  {
+    "id": "osm-way-580088835",
+    "name": "Twin Peaks",
+    "brand": null,
+    "address": "Portola Drive, San Francisco",
+    "lat": 37.745872,
+    "lng": -122.451544
+  },
+  {
+    "id": "osm-way-282077938",
+    "name": "Valero",
+    "brand": null,
+    "address": "Ocean Avenue, Westwood Park",
+    "lat": 37.724696,
+    "lng": -122.461064
+  },
+  {
+    "id": "osm-way-229239082",
+    "name": "Valero",
+    "brand": null,
+    "address": "Judah Street, Sunset District",
+    "lat": 37.761493,
+    "lng": -122.476731
+  },
+  {
+    "id": "osm-node-1220797696",
+    "name": "Valero",
+    "brand": null,
+    "address": "James Lick Freeway, Bayview District",
+    "lat": 37.724227,
+    "lng": -122.40187
+  },
+  {
+    "id": "osm-node-632889237",
+    "name": "Valero",
+    "brand": null,
+    "address": "Ulloa Street, West Portal",
+    "lat": 37.7405,
+    "lng": -122.464829
+  }
+]

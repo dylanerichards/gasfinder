@@ -1,22 +1,33 @@
-require "net/http"
 require "json"
 
-# Finds the nearest fuel stations to a point via OpenStreetMap's Overpass API.
-# Kept server-side (like GeocodeController) so we send a proper User-Agent and
-# never expose any user identity — only the coordinates are forwarded.
+# Returns the nearest fuel stations to a point from a local San Francisco
+# dataset (db/sf_gas_stations.json), so the app never depends on a flaky live
+# API at request time.
 #
-# DATA SOURCE: Overpass (amenity=fuel) is reliable, keyless and consistent with
-# the existing Nominatim proxy. The project's long-term intent is Overture Maps
-# POIs via DuckDB; `fetch_candidates` is the single swap point — replace its body
-# with an Overture/DuckDB query that returns the same candidate shape and the
-# rest of this controller (haversine sort, limit, JSON shape) is unchanged.
+# DATA SOURCE: the committed dataset is an OpenStreetMap snapshot (built from
+# Nominatim). `.stations` is the single swap point — regenerate the JSON from
+# Overture Maps POIs (via DuckDB) or a fresh OSM pull with the same shape
+# ({ id, name, lat, lng, brand, address }) and the rest of this controller
+# (haversine sort, limit, JSON shape) is unchanged.
 class GasStationsController < ApplicationController
-  USER_AGENT = "GasFinder/1.0 (San Francisco gas station finder)".freeze
-  OVERPASS_URL = "https://overpass-api.de/api/interpreter".freeze
-  # Try a tight radius first; widen once if the city block is sparse.
-  SEARCH_RADII_M = [ 2500, 6000 ].freeze
   RESULT_LIMIT = 5
   EARTH_RADIUS_M = 6_371_000.0
+  DATA_PATH = Rails.root.join("db/sf_gas_stations.json")
+
+  class << self
+    def stations
+      @stations ||= load_stations
+    end
+
+    private
+
+    def load_stations
+      JSON.parse(File.read(DATA_PATH), symbolize_names: true).freeze
+    rescue Errno::ENOENT, JSON::ParserError => e
+      Rails.logger.warn("gas station dataset unavailable: #{e.class}: #{e.message}")
+      [].freeze
+    end
+  end
 
   def index
     lat = parse_coord(params[:lat], -90.0, 90.0)
@@ -44,93 +55,22 @@ class GasStationsController < ApplicationController
   end
 
   def nearest_stations(lat, lng)
-    candidates = []
-    SEARCH_RADII_M.each do |radius|
-      candidates = fetch_candidates(lat, lng, radius)
-      break if candidates.length >= RESULT_LIMIT
-    end
-
-    candidates
-      .map { |c| c.merge(distance_m: haversine_m(lat, lng, c[:lat], c[:lng])) }
-      .sort_by { |c| c[:distance_m] }
+    self.class.stations
+      .map { |s| s.merge(distance_m: haversine_m(lat, lng, s[:lat], s[:lng]).round) }
+      .sort_by { |s| s[:distance_m] }
       .first(RESULT_LIMIT)
-      .map { |c| present(c) }
+      .map { |s| present(s) }
   end
 
-  # The one data-source seam. Swap this body for an Overture Maps / DuckDB query
-  # to change providers; callers only rely on the candidate hash shape
-  # ({ id:, name:, lat:, lng:, brand:, address: }) it returns.
-  def fetch_candidates(lat, lng, radius_m)
-    uri = URI(OVERPASS_URL)
-    req = Net::HTTP::Post.new(uri)
-    req["User-Agent"] = USER_AGENT
-    req.content_type = "application/x-www-form-urlencoded"
-    req.body = URI.encode_www_form(data: overpass_query(lat, lng, radius_m))
-
-    res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true, open_timeout: 4, read_timeout: 12) do |http|
-      http.request(req)
-    end
-    return [] unless res.is_a?(Net::HTTPSuccess)
-
-    parse_elements(JSON.parse(res.body))
-  end
-
-  # lat/lng/radius_m are validated numerics, so interpolation here is injection-safe.
-  def overpass_query(lat, lng, radius_m)
-    <<~OVERPASSQL
-      [out:json][timeout:25];
-      (
-        node["amenity"="fuel"](around:#{radius_m},#{lat},#{lng});
-        way["amenity"="fuel"](around:#{radius_m},#{lat},#{lng});
-      );
-      out center tags;
-    OVERPASSQL
-  end
-
-  def parse_elements(payload)
-    elements = payload["elements"]
-    return [] unless elements.is_a?(Array)
-
-    elements.filter_map { |el| build_candidate(el) }
-  end
-
-  def build_candidate(element)
-    center = element["center"] || {}
-    lat = (element["lat"] || center["lat"])&.to_f
-    lng = (element["lon"] || center["lon"])&.to_f
-    return nil unless lat && lng
-
-    tags = element["tags"] || {}
+  def present(station)
     {
-      id: "osm-#{element['type']}-#{element['id']}",
-      name: station_name(tags),
-      lat: lat,
-      lng: lng,
-      brand: tags["brand"].presence,
-      address: street_address(tags)
-    }
-  end
-
-  def station_name(tags)
-    tags["name"].presence || tags["brand"].presence || tags["operator"].presence || "Gas station"
-  end
-
-  def street_address(tags)
-    street = tags["addr:street"].presence
-    return nil unless street
-
-    [ tags["addr:housenumber"].presence, street ].compact.join(" ")
-  end
-
-  def present(candidate)
-    {
-      id: candidate[:id],
-      name: candidate[:name],
-      lat: candidate[:lat],
-      lng: candidate[:lng],
-      distance_m: candidate[:distance_m].round,
-      brand: candidate[:brand],
-      address: candidate[:address]
+      id: station[:id],
+      name: station[:name],
+      lat: station[:lat],
+      lng: station[:lng],
+      distance_m: station[:distance_m],
+      brand: station[:brand],
+      address: station[:address]
     }
   end
 
