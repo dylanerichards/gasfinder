@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useEffect, useRef } from 'react'
 import LocationMap from './LocationMap'
 import Dropdown from './Dropdown'
 import Confirmation from './Confirmation'
@@ -104,10 +104,27 @@ export default function App() {
   const [route, setRoute] = useState(null)
   const [routeStatus, setRouteStatus] = useState('idle') // 'idle' | 'loading' | 'ready' | 'error'
 
+  // Client-side route memo keyed by `${stationId}:${mode}` (position is fixed for
+  // a located session). Avoids refetching when toggling drive/walk, re-selecting a
+  // station, or running "shortest" after routes were already fetched.
+  const routeCacheRef = useRef(new Map())
+  const getRoute = useCallback(
+    async (station, m) => {
+      const key = `${station.id}:${m}`
+      const cache = routeCacheRef.current
+      if (cache.has(key)) return cache.get(key)
+      const data = await fetchRoute(position, station, m)
+      if (data) cache.set(key, data)
+      return data
+    },
+    [position]
+  )
+
   // Fetch the nearest stations whenever the location changes.
   useEffect(() => {
     if (!position) return undefined
     let cancelled = false
+    routeCacheRef.current.clear() // new location → previously cached routes are stale
     setStations([])
     setDestination(null)
     setStationsStatus('loading')
@@ -138,7 +155,7 @@ export default function App() {
     let cancelled = false
     setRoute(null)
     setRouteStatus('loading')
-    fetchRoute(position, destination, travelMode)
+    getRoute(destination, travelMode)
       .then((data) => {
         if (cancelled) return
         if (data) {
@@ -157,7 +174,7 @@ export default function App() {
     return () => {
       cancelled = true
     }
-  }, [position, destination, travelMode])
+  }, [position, destination, travelMode, getRoute])
 
   // Collapse the station list once a destination is locked in; reopen when cleared.
   useEffect(() => {
@@ -177,7 +194,7 @@ export default function App() {
       try {
         const results = await Promise.all(
           stations.map((s) =>
-            fetchRoute(position, s, m).then((r) => ({ s, r })).catch(() => ({ s, r: null }))
+            getRoute(s, m).then((r) => ({ s, r })).catch(() => ({ s, r: null }))
           )
         )
         const valid = results.filter((x) => x.r && Number.isFinite(x.r.distance_m))
@@ -190,7 +207,7 @@ export default function App() {
         setAutoPicking(null)
       }
     },
-    [position, stations, autoPicking]
+    [position, stations, autoPicking, getRoute]
   )
 
   const selectDestinationById = useCallback(

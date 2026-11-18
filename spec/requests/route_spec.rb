@@ -175,4 +175,37 @@ RSpec.describe "GET /api/route", type: :request do
       expect(json_body["error"]).to be_present
     end
   end
+
+  context "caching" do
+    let(:cache_store) { ActiveSupport::Cache::MemoryStore.new }
+
+    before do
+      allow(Rails).to receive(:cache).and_return(cache_store)
+      stub_request(:get, car_url).to_return(status: 200, body: osrm_body.to_json)
+    end
+
+    it "serves a repeated route from cache without a second upstream call" do
+      get "/api/route", params: valid_params.merge(mode: "drive")
+      get "/api/route", params: valid_params.merge(mode: "drive")
+
+      expect(a_request(:get, car_url)).to have_been_made.once
+      expect(json_body["distance_m"]).to be_present
+    end
+
+    it "sets a public Cache-Control header" do
+      get "/api/route", params: valid_params.merge(mode: "drive")
+
+      expect(response.headers["Cache-Control"]).to include("max-age", "public")
+    end
+
+    it "does not cache an upstream failure (so it can be retried)" do
+      stub_request(:get, car_url).to_return(status: 500, body: "boom")
+
+      get "/api/route", params: valid_params.merge(mode: "drive")
+      get "/api/route", params: valid_params.merge(mode: "drive")
+
+      expect(a_request(:get, car_url)).to have_been_made.twice
+      expect(json_body["error"]).to be_present
+    end
+  end
 end

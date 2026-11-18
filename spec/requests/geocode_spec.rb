@@ -181,4 +181,31 @@ RSpec.describe "GET /api/geocode", type: :request do
       expect(json_body).to eq([])
     end
   end
+
+  context "caching" do
+    let(:cache_store) { ActiveSupport::Cache::MemoryStore.new }
+    let(:success_body) do
+      [ { osm_type: "node", osm_id: 1, lat: "37.79", lon: "-122.40", display_name: "A Place, San Francisco" } ].to_json
+    end
+
+    before do
+      allow(Rails).to receive(:cache).and_return(cache_store)
+      stub_request(:get, nominatim_url).with(query: hash_including({}))
+        .to_return(status: 200, headers: { "Content-Type" => "application/json" }, body: success_body)
+    end
+
+    it "serves a repeated query from cache without hitting Nominatim twice" do
+      get "/api/geocode", params: { q: "ferry building" }
+      get "/api/geocode", params: { q: "ferry building" }
+
+      expect(a_request(:get, nominatim_url).with(query: hash_including({}))).to have_been_made.once
+      expect(json_body.length).to eq(1)
+    end
+
+    it "sets a public Cache-Control header on non-empty results" do
+      get "/api/geocode", params: { q: "ferry building" }
+
+      expect(response.headers["Cache-Control"]).to include("max-age", "public")
+    end
+  end
 end

@@ -28,9 +28,10 @@ class RouteController < ApplicationController
       return render(json: { error: "Invalid coordinates." }, status: :ok)
     end
 
-    route = fetch_route(mode, from_lat, from_lng, to_lat, to_lng)
+    route = cached_route(mode, from_lat, from_lng, to_lat, to_lng)
     return render(json: { error: "Couldn't load directions." }, status: :ok) unless route
 
+    expires_in 1.hour, public: true
     render json: route
   rescue => e
     Rails.logger.warn("route failed: #{e.class}: #{e.message}")
@@ -38,6 +39,16 @@ class RouteController < ApplicationController
   end
 
   private
+
+  # Routes are deterministic, so cache by mode + rounded coordinates. skip_nil
+  # keeps upstream failures out of the cache so they can be retried. No-op in
+  # test (:null_store); per-dyno :memory_store in production.
+  def cached_route(mode, from_lat, from_lng, to_lat, to_lng)
+    key = format("route/v1/%s/%.5f,%.5f;%.5f,%.5f", mode, from_lat, from_lng, to_lat, to_lng)
+    Rails.cache.fetch(key, expires_in: 6.hours, skip_nil: true) do
+      fetch_route(mode, from_lat, from_lng, to_lat, to_lng)
+    end
+  end
 
   def parse_mode(raw)
     mode = raw.to_s.strip.downcase

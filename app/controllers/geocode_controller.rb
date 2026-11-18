@@ -13,13 +13,28 @@ class GeocodeController < ApplicationController
     query = params[:q].to_s.strip
     return render(json: []) if query.length < 3
 
-    render json: search(query)
+    results = cached_search(query)
+    expires_in 1.hour, public: true if results.any?
+    render json: results
   rescue => e
     Rails.logger.warn("geocode failed: #{e.class}: #{e.message}")
     render json: [], status: :ok
   end
 
   private
+
+  # Server-side cache. Only successful (non-empty) results are stored, so a
+  # transient upstream failure (which returns []) isn't cached. No-op in test
+  # (:null_store); per-dyno :memory_store in production.
+  def cached_search(query)
+    key = "geocode/v1/#{query.downcase}"
+    cached = Rails.cache.read(key)
+    return cached if cached
+
+    results = search(query)
+    Rails.cache.write(key, results, expires_in: 1.day) if results.any?
+    results
+  end
 
   def search(query)
     uri = URI("https://nominatim.openstreetmap.org/search")
