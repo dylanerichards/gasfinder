@@ -32,18 +32,12 @@ gem "thruster", require: false
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
 # gem "image_processing", "~> 1.2"
 
-# Use postgresql as the database for Active Record in production. Heroku's
-# filesystem is ephemeral, so SQLite files in storage/ would be wiped on every
-# dyno restart/deploy; Postgres (via DATABASE_URL) persists. SQLite stays the
-# dev/test database below.
-group :production do
-  gem "pg", "~> 1.1"
-end
+# SQLite in every environment. This app stores nothing in a relational DB
+# (gas stations are a committed JSON, geocoding is external), so an ephemeral
+# SQLite file on Heroku is fine and avoids a paid Postgres add-on.
+gem "sqlite3", ">= 2.1"
 
 group :development, :test do
-  # Use sqlite3 as the database for Active Record in development and test.
-  gem "sqlite3", ">= 2.1"
-
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
 

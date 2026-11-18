@@ -1,6 +1,6 @@
 {
   "name": "GasFinder",
-  "description": "GasFinder — Rails 8 + Vite (React 19) + Tailwind v4 + PostgreSQL.",
+  "description": "GasFinder — Rails 8 + Vite (React 19) + Tailwind v4. Find the nearest gas station in San Francisco.",
   "repository": "",
   "env": {
     "RAILS_MASTER_KEY": {
@@ -15,9 +15,6 @@
   "formation": {
     "web": { "quantity": 1, "size": "basic" }
   },
-  "addons": [
-    { "plan": "heroku-postgresql:essential-0" }
-  ],
   "buildpacks": [
     { "url": "heroku/nodejs" },
     { "url": "heroku/ruby" }

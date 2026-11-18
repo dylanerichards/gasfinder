@@ -27,7 +27,7 @@ test:
 # adapters in production (see config/environments/production.rb and
 # config/cable.yml), so no extra databases are needed.
 production:
-  adapter: postgresql
-  encoding: unicode
+  adapter: sqlite3
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  url: <%= ENV["DATABASE_URL"] %>
+  timeout: 5000
+  database: storage/production.sqlite3

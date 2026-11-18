@@ -12,5 +12,6 @@ test:
   <<: *default
 
 production:
-  database: cache
+  # Cache store is :memory_store in production (see production.rb), so Solid
+  # Cache uses the primary connection and needs no separate database.
   <<: *default
