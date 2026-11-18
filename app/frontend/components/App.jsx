@@ -3,31 +3,27 @@ import LocationMap from './LocationMap'
 import Dropdown from './Dropdown'
 import Confirmation from './Confirmation'
 
-// San Francisco places. `landmark: true` entries also appear in the quick
-// landmark picker; all of them are searchable in the address field.
-const SF_PLACES = [
-  { value: 'ferry-building', label: 'Ferry Building', hint: 'Embarcadero', lat: 37.7955, lng: -122.3937, landmark: true },
-  { value: 'union-square', label: 'Union Square', hint: 'Downtown', lat: 37.788, lng: -122.4074, landmark: true },
-  { value: 'dolores-park', label: 'Mission Dolores Park', hint: 'Mission', lat: 37.7596, lng: -122.4269, landmark: true },
-  { value: 'de-young', label: 'de Young Museum', hint: 'Golden Gate Park', lat: 37.7714, lng: -122.4686, landmark: true },
-  { value: 'fishermans-wharf', label: "Fisherman's Wharf", hint: 'Northern Waterfront', lat: 37.808, lng: -122.4177, landmark: true },
-  { value: 'twin-peaks', label: 'Twin Peaks', hint: 'Twin Peaks', lat: 37.7544, lng: -122.4477, landmark: true },
-  { value: 'chase-center', label: 'Chase Center', hint: 'Mission Bay', lat: 37.768, lng: -122.3892, landmark: true },
-  { value: 'presidio', label: 'Presidio — Main Post', hint: 'Presidio', lat: 37.7989, lng: -122.4662, landmark: true },
-  { value: 'salesforce-tower', label: 'Salesforce Tower', hint: '415 Mission St · Financial District', lat: 37.7897, lng: -122.3972 },
-  { value: 'city-hall', label: 'San Francisco City Hall', hint: '1 Dr Carlton B Goodlett Pl · Civic Center', lat: 37.7793, lng: -122.4193 },
-  { value: 'oracle-park', label: 'Oracle Park', hint: '24 Willie Mays Plaza · South Beach', lat: 37.7786, lng: -122.3893 },
-  { value: 'palace-fine-arts', label: 'Palace of Fine Arts', hint: '3601 Lyon St · Marina', lat: 37.803, lng: -122.4487 },
-  { value: 'coit-tower', label: 'Coit Tower', hint: '1 Telegraph Hill Blvd · Telegraph Hill', lat: 37.8024, lng: -122.4058 },
-  { value: 'painted-ladies', label: 'Painted Ladies', hint: '710 Steiner St · Alamo Square', lat: 37.7763, lng: -122.4328 },
-  { value: 'haight-ashbury', label: 'Haight-Ashbury', hint: 'Haight St & Ashbury St', lat: 37.7699, lng: -122.4469 },
-  { value: 'lands-end', label: 'Lands End Lookout', hint: '680 Point Lobos Ave · Outer Richmond', lat: 37.7795, lng: -122.5107 },
-  { value: 'ghirardelli', label: 'Ghirardelli Square', hint: '900 North Point St · Fisherman’s Wharf', lat: 37.8058, lng: -122.4229 },
-  { value: 'sf-zoo', label: 'San Francisco Zoo', hint: 'Sloat Blvd · Outer Sunset', lat: 37.7325, lng: -122.503 },
+// Curated landmarks for the quick picker (value, label, hint, lat, lng).
+const LANDMARKS = [
+  { value: 'ferry-building', label: 'Ferry Building', hint: 'Embarcadero', lat: 37.7955, lng: -122.3937 },
+  { value: 'union-square', label: 'Union Square', hint: 'Downtown', lat: 37.788, lng: -122.4074 },
+  { value: 'dolores-park', label: 'Mission Dolores Park', hint: 'Mission', lat: 37.7596, lng: -122.4269 },
+  { value: 'de-young', label: 'de Young Museum', hint: 'Golden Gate Park', lat: 37.7714, lng: -122.4686 },
+  { value: 'fishermans-wharf', label: "Fisherman's Wharf", hint: 'Northern Waterfront', lat: 37.808, lng: -122.4177 },
+  { value: 'twin-peaks', label: 'Twin Peaks', hint: 'Twin Peaks', lat: 37.7544, lng: -122.4477 },
+  { value: 'chase-center', label: 'Chase Center', hint: 'Mission Bay', lat: 37.768, lng: -122.3892 },
+  { value: 'presidio', label: 'Presidio — Main Post', hint: 'Presidio', lat: 37.7989, lng: -122.4662 },
 ]
-const PLACE_BY_VALUE = Object.fromEntries(SF_PLACES.map((p) => [p.value, p]))
-const LANDMARK_OPTIONS = SF_PLACES.filter((p) => p.landmark).map(({ value, label, hint }) => ({ value, label, hint }))
-const ADDRESS_OPTIONS = SF_PLACES.map(({ value, label, hint }) => ({ value, label, hint }))
+
+// Real address search via the Rails geocode proxy (OpenStreetMap / Nominatim).
+async function searchAddress(query) {
+  const res = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`, {
+    headers: { Accept: 'application/json' },
+  })
+  if (!res.ok) return []
+  const data = await res.json()
+  return Array.isArray(data) ? data : []
+}
 
 const SF_BOUNDS = { minLat: 37.70, maxLat: 37.84, minLng: -122.53, maxLng: -122.34 }
 const outsideSF = (lat, lng) =>
@@ -64,7 +60,7 @@ export default function App() {
   const [error, setError] = useState(null)
   const [position, setPosition] = useState(null)
 
-  const [placeValue, setPlaceValue] = useState('')
+  const [selectedPlace, setSelectedPlace] = useState(null)
   const [manualError, setManualError] = useState(null)
   const [confirm, setConfirm] = useState({ msg: '', n: 0 })
 
@@ -107,23 +103,32 @@ export default function App() {
     )
   }, [reveal])
 
-  const choosePlace = useCallback((value) => {
-    setPlaceValue(value)
+  const chooseLandmark = useCallback((_value, opt) => {
+    setSelectedPlace({ ...opt, source: 'landmark' })
+    setManualError(null)
+  }, [])
+
+  const chooseAddress = useCallback((_value, opt) => {
+    setSelectedPlace({ ...opt, source: 'address' })
     setManualError(null)
   }, [])
 
   const submitManual = useCallback(
     (e) => {
       e.preventDefault()
-      const place = PLACE_BY_VALUE[placeValue]
-      if (!place) {
+      if (!selectedPlace) {
         setManualError('Pick a landmark or search for an address.')
         return
       }
-      setManualError(null)
-      reveal({ lat: place.lat, lng: place.lng, accuracy: null, source: place.label, timestamp: Date.now() })
+      reveal({
+        lat: selectedPlace.lat,
+        lng: selectedPlace.lng,
+        accuracy: null,
+        source: selectedPlace.label,
+        timestamp: Date.now(),
+      })
     },
-    [placeValue, reveal]
+    [selectedPlace, reveal]
   )
 
   const locating = status === 'locating'
@@ -205,9 +210,10 @@ export default function App() {
                       </label>
                       <Dropdown
                         id="gf-landmark"
-                        options={LANDMARK_OPTIONS}
-                        value={placeValue}
-                        onChange={choosePlace}
+                        options={LANDMARKS}
+                        value={selectedPlace?.source === 'landmark' ? selectedPlace.value : ''}
+                        selected={selectedPlace?.source === 'landmark' ? selectedPlace : null}
+                        onChange={chooseLandmark}
                         placeholder="Choose a landmark…"
                         ariaLabel="San Francisco landmark"
                       />
@@ -217,12 +223,12 @@ export default function App() {
                       <label className="til-field__label" htmlFor="gf-address">Address or place</label>
                       <Dropdown
                         id="gf-address"
-                        options={ADDRESS_OPTIONS}
-                        value={placeValue}
-                        onChange={choosePlace}
-                        placeholder="Search an address or place…"
-                        searchPlaceholder="Type an address or place…"
-                        searchable
+                        onSearch={searchAddress}
+                        value={selectedPlace?.source === 'address' ? selectedPlace.value : ''}
+                        selected={selectedPlace?.source === 'address' ? selectedPlace : null}
+                        onChange={chooseAddress}
+                        placeholder="Search any San Francisco address…"
+                        searchPlaceholder="e.g. 1 Ferry Building"
                         ariaLabel="Address or place"
                         invalid={Boolean(manualError)}
                       />
