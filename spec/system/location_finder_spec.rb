@@ -1,6 +1,13 @@
 require "rails_helper"
 
 RSpec.describe "Location finder", type: :system do
+  # Revealing a location now also fetches nearby gas stations (Overpass proxy).
+  # These examples only care about the reveal, so keep that call quiet.
+  before do
+    stub_request(:post, "https://overpass-api.de/api/interpreter")
+      .to_return(status: 200, headers: { "Content-Type" => "application/json" }, body: { elements: [] }.to_json)
+  end
+
   it "sets a location from a landmark and reveals the map" do
     visit "/"
 
