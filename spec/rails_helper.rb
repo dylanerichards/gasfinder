@@ -33,6 +33,8 @@ begin
   ActiveRecord::Migration.maintain_test_schema!
 rescue ActiveRecord::PendingMigrationError => e
   abort e.to_s.strip
+rescue ActiveRecord::NoDatabaseError, ActiveRecord::StatementInvalid
+  # This app has no models/migrations yet, so there is no schema to maintain.
 end
 RSpec.configure do |config|
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures

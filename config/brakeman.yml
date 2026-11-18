@@ -1,0 +1,6 @@
+---
+# Skip the "end-of-life Rails" advisory. Rails 8.0 is EOL (2026-11-07); moving to
+# the maintained 8.1 line is tracked as a separate upgrade (it also requires
+# relaxing the json ~> 2.x pin). Until then this advisory should not fail CI.
+:skip_checks:
+  - CheckEOLRails

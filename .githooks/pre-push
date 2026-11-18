@@ -1,0 +1,15 @@
+#!/bin/sh
+# Runs the same checks as CI before allowing a push. Enable with:
+#   git config core.hooksPath .githooks
+set -e
+
+echo "pre-push ▸ rubocop"
+bundle exec rubocop -f quiet
+
+echo "pre-push ▸ brakeman"
+bundle exec brakeman --no-pager -q
+
+echo "pre-push ▸ rspec"
+bundle exec rspec
+
+echo "pre-push ▸ all checks passed"
