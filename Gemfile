@@ -52,6 +52,17 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # Testing: RSpec as the primary framework.
+  gem "rspec-rails", "~> 8.0"
+
+  # Stub outbound HTTP (e.g. the Nominatim geocode proxy) in specs.
+  gem "webmock", "~> 3.0"
+
+  # Browser-driven system/e2e specs.
+  gem "capybara", "~> 3.40"
+  # Headless Chrome driver (uses the CDP; drives Google Chrome via Ferrum).
+  gem "cuprite", "~> 0.17"
 end
 
 group :development do
