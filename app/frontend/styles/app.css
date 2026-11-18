@@ -1,0 +1,97 @@
+/* Gas Finder — page layout + reveal animation, built on The Interview Loop tokens */
+.gf-page{
+  min-height:100vh;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding:clamp(40px,8vh,96px) var(--page-margin);
+}
+
+/* Stage: centered single column in input state, two columns once located */
+.gf-stage{
+  width:100%;
+  max-width:520px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  gap:var(--space-8);
+  transition:max-width var(--duration-slow) var(--ease-standard);
+}
+.gf-stage.is-located{
+  max-width:1060px;
+  grid-template-columns:minmax(0,440px) minmax(0,1fr);
+  align-items:start;
+  gap:clamp(24px,5vw,64px);
+}
+.gf-main{display:flex;flex-direction:column;gap:var(--space-6);min-width:0}
+
+/* Intro copy (input state) — animates out when a location is chosen */
+.gf-intro{
+  display:flex;flex-direction:column;gap:var(--space-6);
+  transition:opacity var(--duration-base) var(--ease-standard),transform var(--duration-base) var(--ease-standard);
+}
+.gf-intro__head{display:flex;flex-direction:column;gap:var(--space-4)}
+.gf-intro.is-exiting{opacity:0;transform:translateY(-10px);pointer-events:none}
+.gf-title{max-width:16ch}
+.gf-lede{color:var(--fg-muted);max-width:var(--measure-lede)}
+
+.gf-card{gap:var(--space-5)}
+.gf-panel{display:flex;flex-direction:column;gap:var(--space-4)}
+.gf-coords{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
+/* Keep the inline validation icon small (the raw SVG has no intrinsic size) */
+.til-field__error svg{width:13px;height:13px;flex:none}
+
+/* Revealed "Your location" copy — pushed to the side column */
+.gf-reveal-head{
+  display:flex;flex-direction:column;gap:var(--space-3);
+  animation:gf-fade-up var(--duration-base) var(--ease-standard) both;
+}
+.gf-details{
+  display:flex;flex-direction:column;gap:var(--space-5);
+  animation:gf-fade-up var(--duration-base) var(--ease-standard) both;
+  animation-delay:80ms;
+}
+.gf-details__head{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap}
+.gf-details__actions{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);flex-wrap:wrap;padding-top:var(--space-2)}
+
+/* Map column — slides in from the right */
+.gf-mapcol{
+  min-width:0;
+  animation:gf-slide-in var(--duration-slow) var(--ease-standard) both;
+  animation-delay:120ms;
+}
+.gf-map{
+  height:clamp(320px,52vh,520px);
+  width:100%;
+  border:1px solid var(--border-default);
+  border-radius:var(--radius-card);
+  overflow:hidden;
+  background:var(--bg-muted);
+  box-shadow:var(--shadow-sm);
+  z-index:0;
+}
+.gf-map .leaflet-tile-pane{filter:saturate(.92)}
+.gf-map .leaflet-container{background:var(--bg-muted);font-family:var(--font-mono)}
+.gf-map .leaflet-control-attribution{background:rgba(255,255,255,.88);color:var(--fg-subtle);font-family:var(--font-mono);font-size:10px}
+.gf-map .leaflet-control-attribution a{color:var(--fg-muted)}
+.gf-map .leaflet-bar a{color:var(--fg-default);background:var(--bg-canvas);border-color:var(--border-default)}
+.gf-map .leaflet-bar a:hover{background:var(--bg-muted)}
+
+/* Cobalt location marker */
+.gf-marker{position:relative}
+.gf-marker__dot{position:absolute;left:50%;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;background:var(--cobalt-600);border:2px solid #fff;border-radius:50%;box-shadow:0 1px 4px rgba(31,35,40,.4)}
+.gf-marker__ring{position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border:2px solid var(--cobalt-500);border-radius:50%;opacity:.4;animation:gf-pulse 2.4s var(--ease-standard) infinite}
+
+@keyframes gf-fade-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes gf-slide-in{from{opacity:0;transform:translateX(48px)}to{opacity:1;transform:none}}
+@keyframes gf-pulse{0%{transform:scale(.7);opacity:.5}70%{transform:scale(1.4);opacity:0}100%{opacity:0}}
+
+@media (max-width:820px){
+  .gf-stage.is-located{max-width:520px;grid-template-columns:minmax(0,1fr)}
+  .gf-mapcol{animation-name:gf-fade-up}
+}
+@media (max-width:420px){
+  .gf-coords{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  .gf-intro,.gf-reveal-head,.gf-details,.gf-mapcol,.gf-marker__ring{animation:none;transition:none}
+}
