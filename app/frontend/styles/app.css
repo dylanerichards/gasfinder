@@ -194,6 +194,36 @@
 .gf-smarker--on .gf-smarker__pin{background:var(--cobalt-600);width:26px;height:26px;margin-left:-13px;box-shadow:0 0 0 4px var(--cobalt-200),0 1px 5px rgba(31,35,40,.45)}
 .gf-smarker--on .gf-smarker__n{top:11px;font-size:12px}
 
+/* ——— Turn-by-turn directions (left column) ——— */
+.gf-route{display:flex;flex-direction:column;gap:var(--space-4);animation:gf-fade-up var(--duration-base) var(--ease-standard) both}
+.gf-route__head{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);flex-wrap:wrap}
+.gf-route__mode{display:inline-flex;align-items:center;gap:6px}
+.gf-route__mode svg{width:15px;height:15px;flex:none}
+.gf-route__live{display:flex;flex-direction:column;gap:var(--space-4)}
+
+/* Prominent trip summary — time + distance */
+.gf-route__summary{display:flex;align-items:center;gap:10px;padding:14px 16px;border:1px solid var(--border-default);border-radius:var(--radius-card);background:var(--cobalt-25);color:var(--fg-default)}
+.gf-route__icon{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;flex:none;border-radius:50%;background:var(--cobalt-600);color:#fff}
+.gf-route__icon svg{width:19px;height:19px}
+.gf-route__time{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1;color:var(--cobalt-700)}
+.gf-route__sep{color:var(--fg-subtle)}
+.gf-route__dist{font-family:var(--font-mono);font-size:18px;font-weight:600;color:var(--fg-default)}
+.gf-route__mode-label{margin-left:auto;font-size:12px;font-weight:500;color:var(--fg-muted);text-transform:uppercase;letter-spacing:.04em}
+
+/* Numbered turn-by-turn step list */
+.gf-steps{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;border:1px solid var(--border-default);border-radius:var(--radius-card);background:var(--bg-canvas);overflow:hidden}
+.gf-step{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:12px;padding:11px 14px;border-top:1px solid var(--border-muted)}
+.gf-step:first-child{border-top:0}
+.gf-step__n{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;flex:none;border-radius:50%;background:var(--neutral-700);color:#fff;font-family:var(--font-mono);font-size:11px;font-weight:600}
+.gf-step__instruction{font-size:14px;line-height:1.35;color:var(--fg-default);min-width:0}
+.gf-step__dist{font-family:var(--font-mono);font-size:12.5px;font-weight:600;color:var(--fg-muted);white-space:nowrap}
+
+/* Route polyline — cobalt (drive) / amber dashed (walk). CSS overrides Leaflet's
+   default presentation attributes on the generated <path>. */
+.gf-routeline{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.gf-routeline--drive{stroke:var(--cobalt-600);stroke-width:5;stroke-opacity:.9}
+.gf-routeline--walk{stroke:var(--amber-600);stroke-width:4;stroke-opacity:.95}
+
 @keyframes gf-fade-up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 @keyframes gf-slide-in{from{opacity:0;transform:translateX(48px)}to{opacity:1;transform:none}}
 @keyframes gf-pulse{0%{transform:scale(.7);opacity:.5}70%{transform:scale(1.4);opacity:0}100%{opacity:0}}

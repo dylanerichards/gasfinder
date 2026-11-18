@@ -28,11 +28,13 @@ export default function LocationMap({
   stations = [],
   destinationId = null,
   onSelectDestination,
+  route = null,
 }) {
   const elRef = useRef(null)
   const mapRef = useRef(null)
   const youRef = useRef(null)
   const stationsLayerRef = useRef(null)
+  const routeLayerRef = useRef(null)
   const boundsRef = useRef(null)
   // Keep the latest click handler without re-creating markers' closures stale.
   const onSelectRef = useRef(onSelectDestination)
@@ -51,6 +53,8 @@ export default function LocationMap({
       maxZoom: 19,
       attribution: '© OpenStreetMap contributors',
     }).addTo(map)
+    // Route sits under the markers so pins stay tappable.
+    routeLayerRef.current = L.layerGroup().addTo(map)
     youRef.current = L.marker([lat, lng], { icon: youIcon, zIndexOffset: 1000 }).addTo(map)
     stationsLayerRef.current = L.layerGroup().addTo(map)
     mapRef.current = map
@@ -81,6 +85,7 @@ export default function LocationMap({
       mapRef.current = null
       youRef.current = null
       stationsLayerRef.current = null
+      routeLayerRef.current = null
       boundsRef.current = null
     }
   }, [])
@@ -92,11 +97,13 @@ export default function LocationMap({
     if (label) youRef.current.bindPopup(label)
   }, [lat, lng, label])
 
-  // Render station markers and fit the view when stations or selection change.
+  // Render station markers + the route polyline and fit the view when the
+  // stations, selection or route change.
   useEffect(() => {
     const map = mapRef.current
     const layer = stationsLayerRef.current
-    if (!map || !layer) return
+    const routeLayer = routeLayerRef.current
+    if (!map || !layer || !routeLayer) return
 
     layer.clearLayers()
     stations.forEach((station, i) => {
@@ -113,15 +120,30 @@ export default function LocationMap({
       marker.addTo(layer)
     })
 
-    if (stations.length > 0) {
-      const bounds = L.latLngBounds([[lat, lng], ...stations.map((s) => [s.lat, s.lng])])
+    // Draw the route — solid cobalt for driving, dashed amber for walking.
+    routeLayer.clearLayers()
+    const routeCoords = Array.isArray(route?.geometry) ? route.geometry : []
+    if (routeCoords.length > 1) {
+      const walking = route.mode === 'walk'
+      L.polyline(routeCoords, {
+        className: `gf-routeline gf-routeline--${walking ? 'walk' : 'drive'}`,
+        interactive: false,
+        dashArray: walking ? '2 10' : null,
+        lineCap: 'round',
+        lineJoin: 'round',
+      }).addTo(routeLayer)
+    }
+
+    const points = [[lat, lng], ...stations.map((s) => [s.lat, s.lng]), ...routeCoords]
+    if (points.length > 1) {
+      const bounds = L.latLngBounds(points)
       boundsRef.current = bounds
       map.fitBounds(bounds, { padding: [36, 36], maxZoom: 16, animate: false })
     } else {
       boundsRef.current = null
       map.setView([lat, lng], 15, { animate: false })
     }
-  }, [stations, destinationId, lat, lng])
+  }, [stations, destinationId, lat, lng, route])
 
   return <div ref={elRef} className="gf-map" role="img" aria-label={`Map centered on ${lat}, ${lng}`} />
 }

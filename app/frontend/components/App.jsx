@@ -3,6 +3,7 @@ import LocationMap from './LocationMap'
 import Dropdown from './Dropdown'
 import Confirmation from './Confirmation'
 import StationList from './StationList'
+import Directions from './Directions'
 
 // Curated landmarks for the quick picker (value, label, hint, lat, lng).
 const LANDMARKS = [
@@ -34,6 +35,22 @@ async function searchGasStations(lat, lng) {
   if (!res.ok) return []
   const data = await res.json()
   return Array.isArray(data) ? data : []
+}
+
+// Turn-by-turn directions from the user to a destination via the Rails OSRM proxy.
+async function fetchRoute(from, to, mode) {
+  const query = new URLSearchParams({
+    from_lat: from.lat,
+    from_lng: from.lng,
+    to_lat: to.lat,
+    to_lng: to.lng,
+    mode,
+  })
+  const res = await fetch(`/api/route?${query}`, { headers: { Accept: 'application/json' } })
+  if (!res.ok) return null
+  const data = await res.json()
+  if (!data || data.error || !Array.isArray(data.geometry)) return null
+  return data
 }
 
 const SF_BOUNDS = { minLat: 37.70, maxLat: 37.84, minLng: -122.53, maxLng: -122.34 }
@@ -80,6 +97,11 @@ export default function App() {
   const [stationsStatus, setStationsStatus] = useState('idle') // 'idle' | 'loading' | 'ready' | 'error'
   const [destination, setDestination] = useState(null)
 
+  // Turn-by-turn route from the user to the chosen destination.
+  const [travelMode, setTravelMode] = useState('drive') // 'drive' | 'walk'
+  const [route, setRoute] = useState(null)
+  const [routeStatus, setRouteStatus] = useState('idle') // 'idle' | 'loading' | 'ready' | 'error'
+
   // Fetch the nearest stations whenever the location changes.
   useEffect(() => {
     if (!position) return undefined
@@ -102,6 +124,38 @@ export default function App() {
       cancelled = true
     }
   }, [position])
+
+  // Fetch directions whenever the destination, location or travel mode changes.
+  // Clearing the destination clears the route.
+  useEffect(() => {
+    if (!position || !destination) {
+      setRoute(null)
+      setRouteStatus('idle')
+      return undefined
+    }
+    let cancelled = false
+    setRoute(null)
+    setRouteStatus('loading')
+    fetchRoute(position, destination, travelMode)
+      .then((data) => {
+        if (cancelled) return
+        if (data) {
+          setRoute(data)
+          setRouteStatus('ready')
+        } else {
+          setRoute(null)
+          setRouteStatus('error')
+        }
+      })
+      .catch(() => {
+        if (cancelled) return
+        setRoute(null)
+        setRouteStatus('error')
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [position, destination, travelMode])
 
   // Toggle a station as the destination (kept so it can drive directions later).
   const selectDestination = useCallback((station) => {
@@ -330,17 +384,6 @@ export default function App() {
 
                 <p className="gf-place">{position.place || position.source}</p>
 
-                {destination && (
-                  <div className="til-callout til-callout--note gf-destnote">
-                    <span className="til-callout__icon"><InfoIcon /></span>
-                    <div className="til-callout__main">
-                      <span className="til-callout__body">
-                        Destination set to <strong>{destination.name}</strong>. Directions are coming soon.
-                      </span>
-                    </div>
-                  </div>
-                )}
-
                 {showSFNote && (
                   <div className="til-callout til-callout--note">
                     <span className="til-callout__icon"><InfoIcon /></span>
@@ -370,6 +413,16 @@ export default function App() {
                 destinationId={destination?.id}
                 onSelect={selectDestination}
               />
+
+              {destination && (
+                <Directions
+                  mode={travelMode}
+                  onModeChange={setTravelMode}
+                  status={routeStatus}
+                  route={route}
+                  destinationName={destination.name}
+                />
+              )}
             </>
           )}
         </div>
@@ -383,6 +436,7 @@ export default function App() {
               stations={stations}
               destinationId={destination?.id}
               onSelectDestination={selectDestinationById}
+              route={route}
             />
           </aside>
         )}
