@@ -12,7 +12,9 @@ Capybara.register_driver(:cuprite) do |app|
     timeout: 30,
     headless: true,
     js_errors: false,
-    browser_options: { "no-sandbox": nil }
+    # no-sandbox + disable-dev-shm-usage are required for headless Chrome on CI
+    # runners (small /dev/shm otherwise crashes Chrome before the websocket opens).
+    browser_options: { "no-sandbox": nil, "disable-dev-shm-usage": nil, "disable-gpu": nil }
   }
   options[:browser_path] = CHROME_PATH if File.exist?(CHROME_PATH)
   Capybara::Cuprite::Driver.new(app, **options)
