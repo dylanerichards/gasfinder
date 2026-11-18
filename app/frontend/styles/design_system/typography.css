@@ -1,0 +1,35 @@
+:root{
+--font-sans:'Archivo',ui-sans-serif,system-ui,-apple-system,'Segoe UI','Helvetica Neue',sans-serif;
+--font-display:var(--font-sans);
+--font-mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+
+--weight-regular:400;--weight-medium:500;--weight-semibold:600;--weight-bold:700;
+
+/* Marketing display */
+--type-display-size:clamp(40px,5.2vw,64px);--type-display-lh:1.05;--type-display-ls:-0.035em;
+/* App headings — modest, GitHub-scale */
+--type-h1-size:32px;--type-h1-lh:1.2;--type-h1-ls:-0.025em;
+--type-h2-size:24px;--type-h2-lh:1.25;--type-h2-ls:-0.02em;
+--type-h3-size:20px;--type-h3-lh:1.3;--type-h3-ls:-0.015em;
+--type-h4-size:16px;--type-h4-lh:1.4;--type-h4-ls:-0.01em;
+/* Body */
+--type-body-lg-size:18px;--type-body-lg-lh:1.55;
+--type-body-size:15px;--type-body-lh:1.55;
+--type-body-sm-size:14px;--type-body-sm-lh:1.5;
+--type-caption-size:13px;--type-caption-lh:1.45;
+--type-micro-size:12px;--type-micro-lh:1.4;
+/* Mono labels */
+--type-eyebrow-size:11.5px;--type-eyebrow-ls:0.05em;
+--type-code-size:13px;
+/* UI */
+--type-button-size:14px;--type-button-weight:500;
+--type-nav-size:14px;
+
+--measure-prose:68ch;--measure-lede:52ch;
+
+/* Semantic aliases */
+--text-heading:var(--fg-default);
+--text-body:var(--fg-default);
+--text-secondary:var(--fg-muted);
+--text-meta:var(--fg-subtle);
+}

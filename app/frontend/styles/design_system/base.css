@@ -1,0 +1,26 @@
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg-canvas);color:var(--fg-default);font-family:var(--font-sans);font-size:var(--type-body-size);line-height:var(--type-body-lh);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+h1,h2,h3,h4,h5,p{margin:0}
+h1,h2,h3,h4{font-weight:600;color:var(--text-heading);text-wrap:balance}
+p{text-wrap:pretty}
+a{color:var(--fg-link);text-decoration:none}
+a:hover{color:var(--fg-link-hover);text-decoration:underline;text-underline-offset:.2em}
+code,kbd,pre{font-family:var(--font-mono);font-size:var(--type-code-size)}
+:focus-visible{outline:2px solid var(--focus-ring-color);outline-offset:2px}
+::selection{background:var(--cobalt-100)}
+.til-display{font-size:var(--type-display-size);line-height:var(--type-display-lh);letter-spacing:var(--type-display-ls);font-weight:600}
+.til-h1{font-size:var(--type-h1-size);line-height:var(--type-h1-lh);letter-spacing:var(--type-h1-ls);font-weight:600}
+.til-h2{font-size:var(--type-h2-size);line-height:var(--type-h2-lh);letter-spacing:var(--type-h2-ls);font-weight:600}
+.til-h3{font-size:var(--type-h3-size);line-height:var(--type-h3-lh);letter-spacing:var(--type-h3-ls);font-weight:600}
+.til-h4{font-size:var(--type-h4-size);line-height:var(--type-h4-lh);letter-spacing:var(--type-h4-ls);font-weight:600}
+.til-body-lg{font-size:var(--type-body-lg-size);line-height:var(--type-body-lg-lh)}
+.til-body{font-size:var(--type-body-size);line-height:var(--type-body-lh)}
+.til-body-sm{font-size:var(--type-body-sm-size);line-height:var(--type-body-sm-lh)}
+.til-caption{font-size:var(--type-caption-size);line-height:var(--type-caption-lh);color:var(--fg-muted)}
+.til-muted{color:var(--fg-muted)}
+.til-mono{font-family:var(--font-mono);font-size:12px;letter-spacing:.02em}
+.til-eyebrow{font-family:var(--font-mono);font-size:var(--type-eyebrow-size);letter-spacing:var(--type-eyebrow-ls);text-transform:uppercase;color:var(--fg-muted);font-weight:500}
+.til-container{max-width:calc(var(--container-max) + var(--page-margin)*2);margin:0 auto;padding:0 var(--page-margin)}
+
+@media (prefers-reduced-motion:reduce){*{transition-duration:0ms!important;animation-duration:0ms!important}}

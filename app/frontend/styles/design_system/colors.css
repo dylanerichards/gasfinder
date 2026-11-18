@@ -1,0 +1,65 @@
+/* The Interview Loop — light, airy, cool-neutral. White canvas, hairline gray borders, one cobalt signal. */
+:root{
+/* Neutral (cool gray) */
+--neutral-0:#FFFFFF;--neutral-25:#FBFCFD;--neutral-50:#F6F8FA;--neutral-100:#EFF2F5;--neutral-200:#E1E5EA;--neutral-300:#D1D9E0;--neutral-400:#B7C0CA;--neutral-500:#818B98;--neutral-600:#59636E;--neutral-700:#3D444D;--neutral-800:#25292E;--neutral-900:#1F2328;
+/* Cobalt (brand — carried from EHA cobalt-600 #2747B5) */
+--cobalt-25:#F5F7FE;--cobalt-50:#EEF2FC;--cobalt-100:#DDE5FA;--cobalt-200:#C3D0F4;--cobalt-300:#A9B6E6;--cobalt-400:#6F86DA;--cobalt-500:#4664CC;--cobalt-600:#2747B5;--cobalt-700:#1F3A9A;--cobalt-800:#1A3185;--cobalt-900:#16286A;
+/* Status */
+--green-50:#EAF6EE;--green-100:#D3EEDC;--green-300:#A7D9B7;--green-600:#1F7A3F;--green-700:#196534;
+--amber-50:#FFF7E0;--amber-100:#FCEBB8;--amber-300:#EBCB7A;--amber-600:#9A6700;--amber-700:#7D5300;
+--red-50:#FFEFEE;--red-100:#FFDCD9;--red-300:#F2B1AC;--red-600:#C7252F;--red-700:#A31D26;
+
+/* ——— Semantic: text ——— */
+--fg-default:var(--neutral-900);
+--fg-muted:var(--neutral-600);
+--fg-subtle:var(--neutral-500);
+--fg-disabled:var(--neutral-400);
+--fg-on-emphasis:var(--neutral-0);
+--fg-accent:var(--cobalt-600);
+--fg-success:var(--green-600);
+--fg-warning:var(--amber-600);
+--fg-danger:var(--red-600);
+--fg-link:var(--cobalt-600);
+--fg-link-hover:var(--cobalt-700);
+
+/* ——— Semantic: surfaces ——— */
+--bg-canvas:var(--neutral-0);
+--bg-subtle:var(--neutral-50);
+--bg-inset:var(--neutral-50);
+--bg-muted:var(--neutral-100);
+--bg-hover:var(--neutral-50);
+--bg-active:var(--neutral-100);
+--bg-selected:var(--cobalt-25);
+--bg-overlay:var(--neutral-0);
+--bg-emphasis:var(--neutral-900);
+--bg-accent:var(--cobalt-600);
+--bg-accent-hover:var(--cobalt-700);
+--bg-accent-active:var(--cobalt-800);
+--bg-accent-muted:var(--cobalt-50);
+--bg-success-muted:var(--green-50);
+--bg-warning-muted:var(--amber-50);
+--bg-danger-muted:var(--red-50);
+--surface-card:var(--neutral-0);
+--surface-sunken:var(--neutral-50);
+--surface-disabled:var(--neutral-100);
+
+/* ——— Semantic: borders ——— */
+--border-default:var(--neutral-300);
+--border-muted:var(--neutral-200);
+--border-strong:var(--neutral-400);
+--border-accent:var(--cobalt-600);
+--border-accent-muted:var(--cobalt-200);
+--border-success:var(--green-300);
+--border-warning:var(--amber-300);
+--border-danger:var(--red-300);
+
+/* ——— Interaction ——— */
+--focus-ring-color:var(--cobalt-500);
+--focus-ring:0 0 0 3px rgba(70,100,204,.28);
+--scrim:rgba(31,35,40,.32);
+
+/* ——— Brand aliases ——— */
+--brand-primary:var(--cobalt-600);
+--brand-primary-hover:var(--cobalt-700);
+--brand-ink:var(--neutral-900);
+}
