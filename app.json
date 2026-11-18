@@ -1,0 +1,25 @@
+{
+  "name": "GasFinder",
+  "description": "GasFinder — Rails 8 + Vite (React 19) + Tailwind v4 + PostgreSQL.",
+  "repository": "",
+  "env": {
+    "RAILS_MASTER_KEY": {
+      "description": "Contents of config/master.key, used to decrypt Rails credentials.",
+      "required": true
+    },
+    "RAILS_ENV": { "value": "production" },
+    "RACK_ENV": { "value": "production" },
+    "RAILS_LOG_TO_STDOUT": { "value": "enabled" },
+    "RAILS_SERVE_STATIC_FILES": { "value": "true" }
+  },
+  "formation": {
+    "web": { "quantity": 1, "size": "basic" }
+  },
+  "addons": [
+    { "plan": "heroku-postgresql:essential-0" }
+  ],
+  "buildpacks": [
+    { "url": "heroku/nodejs" },
+    { "url": "heroku/ruby" }
+  ]
+}
