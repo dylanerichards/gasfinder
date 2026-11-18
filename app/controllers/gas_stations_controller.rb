@@ -4,10 +4,11 @@ require "json"
 # dataset (db/sf_gas_stations.json), so the app never depends on a flaky live
 # API at request time.
 #
-# DATA SOURCE: the committed dataset is an OpenStreetMap snapshot (built from
-# Nominatim). `.stations` is the single swap point — regenerate the JSON from
-# Overture Maps POIs (via DuckDB) or a fresh OSM pull with the same shape
-# ({ id, name, lat, lng, brand, address }) and the rest of this controller
+# DATA SOURCE: the committed dataset is generated from Overture Maps
+# (https://docs.overturemaps.org) — current, keyless cloud data — by
+# `script/fetch_sf_gas_stations.py` (every place in the SF bbox with
+# taxonomy.primary == "gas_station"). Re-run that script to refresh it.
+# `.stations` is the single swap point; the rest of this controller
 # (haversine sort, limit, JSON shape) is unchanged.
 class GasStationsController < ApplicationController
   RESULT_LIMIT = 5
