@@ -1,5 +1,5 @@
 # Re-fetches the SF gas-station dataset from Overture Maps and reloads it into
-# the running process. Scheduled daily (config/initializers/gas_stations_refresh.rb)
+# the running process. Scheduled monthly (config/initializers/gas_stations_refresh.rb)
 # and runnable by hand with `bin/rails gas_stations:refresh`.
 #
 # Failures are logged and swallowed so a transient Overture/network problem (or

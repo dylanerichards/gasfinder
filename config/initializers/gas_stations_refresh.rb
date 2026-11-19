@@ -1,11 +1,13 @@
-# Daily in-process refresh of the gas-station dataset from Overture Maps.
+# Scheduled in-process refresh of the gas-station dataset from Overture Maps.
 #
-# Enabled only when GAS_STATION_REFRESH_CRON is set to a cron expression, so dev,
-# test, and CI never spawn scheduler threads. On Heroku's single web dyno this
-# refreshes the in-memory dataset once a day with no separate worker or database:
-# the job regenerates db/sf_gas_stations.json and the controller reloads it.
+# Overture publishes a new release roughly monthly, so there's nothing to gain
+# from polling faster than that: a monthly cron captures essentially all the
+# freshness for a once-a-month cost. Enabled only when GAS_STATION_REFRESH_CRON
+# is set, so dev, test, and CI never spawn scheduler threads. On the single web
+# dyno this regenerates db/sf_gas_stations.json and the controller reloads it,
+# with no separate worker or database.
 #
-#   heroku config:set GAS_STATION_REFRESH_CRON="0 9 * * *"   # 09:00 UTC daily
+#   heroku config:set GAS_STATION_REFRESH_CRON="0 9 1 * *"   # 09:00 UTC, 1st of the month
 #
 # (The generator needs the Overture Python tooling available on the dyno; without
 # it the job logs a failure and keeps serving the committed dataset.)
