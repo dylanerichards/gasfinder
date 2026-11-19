@@ -113,6 +113,72 @@ RSpec.describe "GET /api/route", type: :request do
     end
   end
 
+  context "with a walking response that has unnamed sidewalk steps" do
+    # The routed-foot profile frequently returns a blank `name` on short
+    # sidewalk / crossing segments even while they run along a named street,
+    # and sometimes carries only a numbered `ref`. These steps should still
+    # surface the real street name, the same way driving does.
+    def osrm_foot_body
+      {
+        code: "Ok",
+        routes: [
+          {
+            distance: 400.0, duration: 320.0,
+            geometry: {
+              type: "LineString",
+              coordinates: [ [ -122.3937, 37.7955 ], [ -122.4100, 37.7700 ] ]
+            },
+            legs: [
+              {
+                steps: [
+                  { distance: 120.0, name: "Powell Street", maneuver: { type: "depart", bearing_after: 90 } },
+                  # Blank-name crossing bracketed by Powell Street on both sides.
+                  { distance: 15.0, name: "", maneuver: { type: "turn", modifier: "left" } },
+                  { distance: 100.0, name: "Powell Street", maneuver: { type: "continue", modifier: "straight" } },
+                  # Blank name but a usable ref.
+                  { distance: 90.0, name: "", ref: "US-101", maneuver: { type: "turn", modifier: "right" } },
+                  # Genuinely unnamed path with nothing to fall back on — stays generic.
+                  { distance: 60.0, name: "", maneuver: { type: "turn", modifier: "left" } },
+                  { distance: 0.0, name: "", maneuver: { type: "arrive" } }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    end
+
+    before do
+      stub_request(:get, foot_url).to_return(
+        status: 200,
+        headers: { "Content-Type" => "application/json" },
+        body: osrm_foot_body.to_json
+      )
+    end
+
+    it "surfaces real street names on walking steps wherever the data has them" do
+      get "/api/route", params: valid_params.merge(mode: "walk")
+
+      instructions = json_body["steps"].map { |s| s["instruction"] }
+      expect(instructions).to eq(
+        [
+          "Head east on Powell Street",
+          # Inherited from the Powell Street steps bracketing this crossing.
+          "Turn left onto Powell Street",
+          "Continue onto Powell Street",
+          # Falls back to the numbered ref when the name is blank.
+          "Turn right onto US-101",
+          # No name or ref anywhere nearby, so it stays generic.
+          "Turn left",
+          "You have arrived at your destination"
+        ]
+      )
+
+      names = json_body["steps"].map { |s| s["name"] }
+      expect(names).to eq([ "Powell Street", "Powell Street", "Powell Street", "US-101", "", "" ])
+    end
+  end
+
   context "with invalid parameters" do
     it "returns an error when a coordinate is missing" do
       get "/api/route", params: { from_lat: "37.79", from_lng: "-122.39", to_lat: "37.77" }

@@ -109,22 +109,52 @@ class RouteController < ApplicationController
   end
 
   def steps(route)
-    legs = route["legs"] || []
-    legs.flat_map { |leg| leg["steps"] || [] }.map do |step|
+    raw = (route["legs"] || []).flat_map { |leg| leg["steps"] || [] }
+    names = resolved_names(raw)
+    raw.each_with_index.map do |step, i|
+      name = names[i]
       {
-        instruction: instruction_for(step),
+        instruction: instruction_for(step, name),
         distance_m: step["distance"].to_f.round,
-        name: step["name"].to_s
+        name: name
       }
     end
   end
 
-  # Build a short, legible instruction from the OSRM maneuver + road name.
-  def instruction_for(step)
+  # Resolve each step's road name with a fallback chain, so walking directions
+  # surface street names as readily as driving does. The foot profile often
+  # leaves sidewalk / crossing segments with a blank `name` even while they run
+  # along a named street, so we fall back from the OSRM `name` to its numbered
+  # `ref`, then to the named street an unnamed connector sits between. We never
+  # invent a name — every value comes straight from the routing data.
+  def resolved_names(raw)
+    base = raw.map { |step| step_name(step) }
+    base.each_index.map do |i|
+      next base[i] if base[i].present?
+
+      before = base[0...i].reverse.find(&:present?)
+      after = base[(i + 1)..].find(&:present?)
+      # Inherit only when the same street brackets the gap on both sides —
+      # i.e. the unnamed segment genuinely lies on that one named street.
+      (before if before.present? && before == after).to_s
+    end
+  end
+
+  # A step's own road name: the OSRM `name`, or its `ref` (e.g. "US-101") when
+  # the name is blank. Returns "" when the step is genuinely unnamed.
+  def step_name(step)
+    name = step["name"].to_s.strip
+    return name unless name.empty?
+
+    step["ref"].to_s.strip
+  end
+
+  # Build a short, legible instruction from the OSRM maneuver + resolved name.
+  def instruction_for(step, name)
     maneuver = step["maneuver"] || {}
     type = maneuver["type"].to_s
     modifier = maneuver["modifier"].to_s.strip
-    name = step["name"].to_s.strip
+    name = name.to_s.strip
     onto = name.empty? ? "" : " onto #{name}"
 
     case type
