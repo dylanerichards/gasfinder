@@ -64,12 +64,13 @@ Vite dev server side by side.
 
 ```bash
 bundle exec rspec       # request + system specs (system specs need Chrome)
+npm test                # React component tests (Vitest + Testing Library)
 bundle exec rubocop     # lint (rubocop-rails-omakase)
 bin/brakeman            # security scan
 ```
 
-A pre-push hook (`.githooks/pre-push`) runs all three before every push —
-enable it with `git config core.hooksPath .githooks`.
+A pre-push hook (`.githooks/pre-push`) runs them all before every push. Enable it
+with `git config core.hooksPath .githooks`.
 
 ## Refreshing the gas-station data
 
