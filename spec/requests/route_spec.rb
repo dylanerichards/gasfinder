@@ -179,6 +179,84 @@ RSpec.describe "GET /api/route", type: :request do
     end
   end
 
+  context "with unnamed walking steps that carry locations" do
+    # Real routed-foot responses put sidewalk segments on unnamed geometry while
+    # still giving each step a location, so we snap to the nearest car road.
+    def osrm_foot_geo_body
+      {
+        code: "Ok",
+        routes: [
+          {
+            distance: 300.0, duration: 240.0,
+            geometry: { type: "LineString", coordinates: [ [ -122.408, 37.784 ], [ -122.421, 37.801 ] ] },
+            legs: [
+              {
+                steps: [
+                  { distance: 60.0, name: "",
+                    geometry: { coordinates: [ [ -122.4089, 37.7836 ], [ -122.4080, 37.7840 ] ] },
+                    maneuver: { type: "depart", bearing_after: 45, location: [ -122.4089, 37.7836 ] } },
+                  { distance: 90.0, name: "",
+                    geometry: { coordinates: [ [ -122.4100, 37.7850 ], [ -122.4110, 37.7860 ] ] },
+                    maneuver: { type: "turn", modifier: "left", location: [ -122.4100, 37.7850 ] } },
+                  { distance: 40.0, name: "",
+                    geometry: { coordinates: [ [ -122.4200, 37.8000 ], [ -122.4210, 37.8010 ] ] },
+                    maneuver: { type: "turn", modifier: "right", location: [ -122.4200, 37.8000 ] } },
+                  { distance: 0.0, name: "", maneuver: { type: "arrive" } }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    end
+
+    def nearest_response(name, distance)
+      {
+        status: 200,
+        headers: { "Content-Type" => "application/json" },
+        body: { code: "Ok", waypoints: [ { name: name, distance: distance } ] }.to_json
+      }
+    end
+
+    before do
+      stub_request(:get, foot_url).to_return(
+        status: 200,
+        headers: { "Content-Type" => "application/json" },
+        body: osrm_foot_geo_body.to_json
+      )
+      stub_request(:get, %r{routed-car/nearest/v1/driving/-122\.408}).to_return(nearest_response("Mason Street", 20.0))
+      stub_request(:get, %r{routed-car/nearest/v1/driving/-122\.411}).to_return(nearest_response("Cyril Magnin Street", 30.0))
+      stub_request(:get, %r{routed-car/nearest/v1/driving/-122\.421}).to_return(nearest_response("Market Street", 95.0))
+    end
+
+    it "names unnamed walking steps from the nearest car road, within range" do
+      get "/api/route", params: valid_params.merge(mode: "walk")
+
+      instructions = json_body["steps"].map { |s| s["instruction"] }
+      expect(instructions).to eq(
+        [
+          "Head northeast on Mason Street",
+          "Turn left onto Cyril Magnin Street",
+          # Nearest road is 95 m away (over the 60 m cap), so no name is borrowed.
+          "Turn right",
+          "You have arrived at your destination"
+        ]
+      )
+    end
+
+    it "does not snap car (driving) steps to nearby roads" do
+      stub_request(:get, %r{routed-car/route/v1/driving/}).to_return(
+        status: 200,
+        headers: { "Content-Type" => "application/json" },
+        body: osrm_foot_geo_body.to_json
+      )
+
+      get "/api/route", params: valid_params.merge(mode: "drive")
+
+      expect(a_request(:get, %r{routed-car/nearest/v1/driving/})).not_to have_been_made
+    end
+  end
+
   context "with invalid parameters" do
     it "returns an error when a coordinate is missing" do
       get "/api/route", params: { from_lat: "37.79", from_lng: "-122.39", to_lat: "37.77" }

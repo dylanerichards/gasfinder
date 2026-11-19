@@ -17,6 +17,11 @@ class RouteController < ApplicationController
   # 8-point compass labels for the opening "Head …" instruction.
   COMPASS = %w[north northeast east southeast south southwest west northwest].freeze
 
+  # Max distance (m) from a walking step to a car road for us to borrow that
+  # road's name. Beyond this the path is genuinely off-street, so it stays
+  # generic rather than being mislabelled.
+  NEAREST_MAX_DISTANCE_M = 60
+
   def index
     mode = parse_mode(params[:mode])
     from_lat = parse_coord(params[:from_lat], -90.0, 90.0)
@@ -98,7 +103,7 @@ class RouteController < ApplicationController
       distance_m: route["distance"].to_f.round,
       duration_s: route["duration"].to_f.round,
       geometry: geometry(route),
-      steps: steps(route)
+      steps: steps(mode, route)
     }
   end
 
@@ -108,9 +113,9 @@ class RouteController < ApplicationController
     coords.map { |lng, lat| [ lat, lng ] }
   end
 
-  def steps(route)
+  def steps(mode, route)
     raw = (route["legs"] || []).flat_map { |leg| leg["steps"] || [] }
-    names = resolved_names(raw)
+    names = resolved_names(mode, raw)
     raw.each_with_index.map do |step, i|
       name = names[i]
       {
@@ -125,19 +130,106 @@ class RouteController < ApplicationController
   # surface street names as readily as driving does. The foot profile often
   # leaves sidewalk / crossing segments with a blank `name` even while they run
   # along a named street, so we fall back from the OSRM `name` to its numbered
-  # `ref`, then to the named street an unnamed connector sits between. We never
-  # invent a name — every value comes straight from the routing data.
-  def resolved_names(raw)
+  # `ref`, then to the named street an unnamed connector sits between, and
+  # finally (walking only) to the nearest car road the segment runs alongside.
+  # We never invent a name; every value comes straight from the routing data.
+  def resolved_names(mode, raw)
     base = raw.map { |step| step_name(step) }
-    base.each_index.map do |i|
+    bracketed = base.each_index.map do |i|
       next base[i] if base[i].present?
 
       before = base[0...i].reverse.find(&:present?)
       after = base[(i + 1)..].find(&:present?)
-      # Inherit only when the same street brackets the gap on both sides —
-      # i.e. the unnamed segment genuinely lies on that one named street.
+      # Inherit only when the same street brackets the gap on both sides, i.e.
+      # the unnamed segment genuinely lies on that one named street.
       (before if before.present? && before == after).to_s
     end
+
+    mode == "walk" ? enrich_with_nearest(bracketed, raw) : bracketed
+  end
+
+  # Walking routes follow unnamed sidewalk / crossing geometry, so OSRM leaves
+  # many steps nameless even on named streets. For each still-unnamed step, snap
+  # its segment to the nearest car road (the sidewalk runs alongside it) and use
+  # that street's name.
+  def enrich_with_nearest(names, raw)
+    pending = {}
+    names.each_index do |i|
+      next if names[i].present?
+
+      point = step_point(raw[i])
+      pending[i] = point if point
+    end
+    return names if pending.empty?
+
+    found = nearest_road_names(pending)
+    names.each_index.map { |i| names[i].presence || found[i].to_s }
+  end
+
+  # Midpoint of a step's own geometry (clearly on the segment, away from the
+  # ambiguous intersection); falls back to the maneuver location. Returns
+  # [lat, lng], or nil when the step carries no usable point.
+  def step_point(step)
+    coords = step.dig("geometry", "coordinates")
+    point = if coords.is_a?(Array) && coords.any?
+      coords[coords.length / 2]
+    else
+      step.dig("maneuver", "location")
+    end
+    lng, lat = point
+    return nil unless lat.is_a?(Numeric) && lng.is_a?(Numeric)
+
+    [ lat, lng ]
+  end
+
+  # Resolve {index => [lat, lng]} to {index => name} with a small thread pool so
+  # a dozen lookups don't add a dozen round-trips of latency.
+  def nearest_road_names(points)
+    results = {}
+    mutex = Mutex.new
+    queue = Queue.new
+    points.each { |pair| queue << pair }
+
+    Array.new([ points.size, 6 ].min) do
+      Thread.new do
+        loop do
+          index, (lat, lng) = begin
+            queue.pop(true)
+          rescue ThreadError
+            break
+          end
+          name = nearest_road_name(lat, lng)
+          mutex.synchronize { results[index] = name } if name
+        rescue StandardError => e
+          Rails.logger.warn("nearest worker failed: #{e.class}: #{e.message}")
+        end
+      end
+    end.each(&:join)
+
+    results
+  end
+
+  # Nearest named car road to a point, or nil. Cached long (street names are
+  # static) and tolerant of upstream failure so directions still render.
+  def nearest_road_name(lat, lng)
+    key = format("nearest/v1/%.5f,%.5f", lat, lng)
+    Rails.cache.fetch(key, expires_in: 7.days, skip_nil: true) do
+      uri = URI("https://routing.openstreetmap.de/routed-car/nearest/v1/driving/#{lng},#{lat}")
+      uri.query = URI.encode_www_form(number: 1)
+      req = Net::HTTP::Get.new(uri)
+      req["User-Agent"] = USER_AGENT
+      res = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true, open_timeout: 4, read_timeout: 6) do |http|
+        http.request(req)
+      end
+      next nil unless res.is_a?(Net::HTTPSuccess)
+
+      waypoint = JSON.parse(res.body)["waypoints"]&.first
+      name = waypoint && waypoint["name"].to_s.strip
+      name.presence if name.present? && waypoint["distance"].to_f <= NEAREST_MAX_DISTANCE_M
+    end
+  rescue Net::OpenTimeout, Net::ReadTimeout, SocketError, JSON::ParserError => e
+    Rails.logger.warn("nearest lookup failed: #{e.class}: #{e.message}")
+    nil
   end
 
   # A step's own road name: the OSRM `name`, or its `ref` (e.g. "US-101") when
