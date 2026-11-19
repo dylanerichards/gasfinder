@@ -5,6 +5,13 @@ turn-by-turn directions to it.
 
 **Live:** https://serene-bayou-74363-4b94bb71b5f2.herokuapp.com/
 
+## Why
+
+Your car breaks down and you need gas. That's the whole problem this app solves.
+Gas Finder is laser-focused: it finds where you are and guides you to the nearest
+station, with no fluff. And because a dead tank often means walking, it gives you
+both walking and driving directions, so you can get there on foot or by car.
+
 ## What it does
 
 - **Set your location** — browser geolocation, a curated SF landmark, or a live
