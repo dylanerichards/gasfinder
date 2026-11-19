@@ -69,3 +69,21 @@ jobs:
         env:
           RAILS_ENV: test
         run: bundle exec rspec
+
+  js_test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Install JS dependencies
+        run: npm ci
+
+      - name: Run frontend component tests
+        run: npm test

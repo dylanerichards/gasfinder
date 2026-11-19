@@ -12,4 +12,7 @@ bundle exec brakeman --no-pager -q
 echo "pre-push ▸ rspec"
 bundle exec rspec
 
+echo "pre-push ▸ vitest"
+npm test
+
 echo "pre-push ▸ all checks passed"
