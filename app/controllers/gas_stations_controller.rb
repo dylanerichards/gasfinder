@@ -20,6 +20,13 @@ class GasStationsController < ApplicationController
       @stations ||= load_stations
     end
 
+    # Force a re-read of the dataset from disk. Called after the daily refresh
+    # job regenerates db/sf_gas_stations.json so the running process serves the
+    # new data without a restart.
+    def reload_stations!
+      @stations = load_stations
+    end
+
     private
 
     def load_stations
