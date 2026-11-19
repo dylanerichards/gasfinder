@@ -42,6 +42,12 @@ describe('Directions', () => {
     expect(screen.getByText('120 m')).toBeInTheDocument()
   })
 
+  it('marks the active travel mode with aria-pressed', () => {
+    renderDirections({ mode: 'drive' })
+    expect(screen.getByRole('button', { name: /drive/i })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: /walk/i })).toHaveAttribute('aria-pressed', 'false')
+  })
+
   it('calls onModeChange when a travel mode is picked', async () => {
     const user = userEvent.setup()
     const onModeChange = vi.fn()

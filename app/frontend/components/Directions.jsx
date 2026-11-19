@@ -48,7 +48,7 @@ export default function Directions({ mode, onModeChange, status, route, destinat
           <button
             type="button"
             className="til-seg__opt gf-route__mode"
-            aria-checked={mode === 'drive'}
+            aria-pressed={mode === 'drive'}
             onClick={() => onModeChange('drive')}
           >
             <CarIcon /> Drive
@@ -56,7 +56,7 @@ export default function Directions({ mode, onModeChange, status, route, destinat
           <button
             type="button"
             className="til-seg__opt gf-route__mode"
-            aria-checked={mode === 'walk'}
+            aria-pressed={mode === 'walk'}
             onClick={() => onModeChange('walk')}
           >
             <WalkIcon /> Walk

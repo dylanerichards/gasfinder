@@ -145,5 +145,5 @@ export default function LocationMap({
     }
   }, [stations, destinationId, lat, lng, route])
 
-  return <div ref={elRef} className="gf-map" role="img" aria-label={`Map centered on ${lat}, ${lng}`} />
+  return <div ref={elRef} className="gf-map" role="region" aria-label="Map of your location and nearby gas stations" />
 }

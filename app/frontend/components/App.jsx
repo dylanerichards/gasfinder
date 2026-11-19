@@ -27,7 +27,7 @@ async function searchAddress(query) {
   return Array.isArray(data) ? data : []
 }
 
-// Nearest fuel stations via the Rails Overpass proxy.
+// Nearest fuel stations via the Rails proxy over the committed Overture dataset.
 async function searchGasStations(lat, lng) {
   const res = await fetch(`/api/gas_stations?lat=${lat}&lng=${lng}`, {
     headers: { Accept: 'application/json' },
@@ -322,7 +322,7 @@ export default function App() {
                   <button
                     type="button"
                     className="til-seg__opt"
-                    aria-checked={mode === 'detect'}
+                    aria-pressed={mode === 'detect'}
                     onClick={() => setMode('detect')}
                   >
                     Use my location
@@ -330,7 +330,7 @@ export default function App() {
                   <button
                     type="button"
                     className="til-seg__opt"
-                    aria-checked={mode === 'manual'}
+                    aria-pressed={mode === 'manual'}
                     onClick={() => setMode('manual')}
                   >
                     Choose a location
