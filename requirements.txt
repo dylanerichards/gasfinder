@@ -1,0 +1,4 @@
+# Python tooling for the gas-station data pipeline (script/fetch_sf_gas_stations.py).
+# Installed by the heroku/python buildpack so the daily RefreshGasStationsJob can
+# regenerate db/sf_gas_stations.json from Overture Maps on the dyno.
+overturemaps
