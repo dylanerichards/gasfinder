@@ -255,6 +255,26 @@ RSpec.describe "GET /api/route", type: :request do
 
       expect(a_request(:get, %r{routed-car/nearest/v1/driving/})).not_to have_been_made
     end
+
+    it "keeps steps generic and still renders when the nearest lookup times out" do
+      stub_request(:get, %r{routed-car/nearest/v1/driving/}).to_timeout
+
+      get "/api/route", params: valid_params.merge(mode: "walk")
+
+      expect(response).to have_http_status(:ok)
+      expect(json_body["steps"].map { |s| s["instruction"] }).to eq(
+        [ "Head northeast", "Turn left", "Turn right", "You have arrived at your destination" ]
+      )
+    end
+
+    it "keeps steps generic when the nearest lookup returns an error" do
+      stub_request(:get, %r{routed-car/nearest/v1/driving/}).to_return(status: 500)
+
+      get "/api/route", params: valid_params.merge(mode: "walk")
+
+      expect(response).to have_http_status(:ok)
+      expect(json_body["steps"].map { |s| s["name"] }).to all(eq(""))
+    end
   end
 
   context "with invalid parameters" do
