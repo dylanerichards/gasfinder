@@ -51,7 +51,7 @@ group :development, :test do
   gem "rspec-rails", "~> 8.0"
 
   # Stub outbound HTTP (e.g. the Nominatim geocode proxy) in specs.
-  gem "webmock", "~> 3.0"
+  gem "webmock", "~> 3.39"
 
   # Browser-driven system/e2e specs.
   gem "capybara", "~> 3.40"
