@@ -66,6 +66,6 @@ end
 
 gem "vite_rails", "~> 3.11"
 
-gem "json", "~> 2.21"
+gem "json", "~> 3.2"
 
 gem "rufus-scheduler", "~> 3.9"
